@@ -1,0 +1,165 @@
+/* src/styles/global.css */
+
+/* ── 1. Google Fonts ── */
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+
+/* ── 2. Tailwind v4 ── */
+@import "tailwindcss";
+
+/* ── 3. Theme Tokens ── */
+@theme {
+    --font-sans: Inter, system-ui, sans-serif;
+
+    --color-brand-500: #0066ff;
+    --color-brand-600: #0055d4;
+    --color-brand-700: #0044aa;
+
+    --color-success: #00c853;
+    --color-danger: #ef4444;
+
+    --color-text-primary: #111827;
+    --color-text-secondary: #4b5563;
+    --color-bg-light: #f9fafb;
+    --animate-fade-up: fadeUp 0.5s ease 0.1s both;
+
+    @keyframes fadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);   /* ← adjust distance: 12px / 16px / 24px / 32px common */
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* ── Base styles (apply globally) ── */
+@layer base {
+    :root {
+        font-family: var(--font-sans);
+    }
+
+    body {
+        @apply bg-white text-text-primary antialiased;
+        margin: 0;
+    }
+
+    /* Headings get a premium fintech look */
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold tracking-tight;
+    }
+}
+
+/* ── Reusable custom utilities (optional but handy) ── */
+@layer utilities {
+    .text-brand     { color: var(--color-brand-500); }
+    .bg-brand       { background-color: var(--color-brand-500); }
+    .hover\:bg-brand-dark:hover { background-color: var(--color-brand-600); }
+
+    .text-success   { color: var(--color-success); }
+    .text-danger    { color: var(--color-danger); }
+}
+
+#branding-panel, #login-form {
+  font-family: "Jost", sans-serif;
+}
+
+@font-face {
+    font-family: "Graphik Web Regular Regular";
+    src: url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.eot");
+    src: url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.eot?#iefix")format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.woff2")format("woff2"),
+    url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.woff")format("woff"),
+    url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.ttf")format("truetype"),
+    url("https://db.onlinewebfonts.com/t/105007d99d9df64c50cc24d696d79555.svg#Graphik Web Regular Regular")format("svg");
+}
+
+.input-base {
+    width: 100%;
+    padding: 10px 16px;
+    /*border-radius: 12px;
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface-input);*/
+        border-radius: 10px;
+        box-sizing: border-box;
+        border: 1.5px solid rgb(107, 141, 212);
+    background: rgb(245, 249, 255);
+    font-size: 14px;
+    /*color: var(--color-text-primary);*/
+    color: rgb(15, 23, 42);
+    font-family: inherit;
+    outline: none;
+    transition: border 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+
+
+/*  rounded-[10px]
+  border border-[rgb(224_234_255)] border-[1.5px]
+  bg-[rgb(245_249_255)]
+  text-[13px] text-[rgb(15_23_42)]
+  outline-none
+  transition
+  font-inherit
+*/
+
+.input-base::placeholder {
+    color: var(--color-text-muted);
+}
+.input-base:focus {
+    border-color: var(--color-border-focus);
+    background: var(--color-surface-input-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Primary CTA button */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    font-family: inherit;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--color-brand-700) 0%, var(--color-brand-500) 100%);
+    box-shadow: var(--shadow-btn);
+    transition: opacity 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-primary:hover:not(:disabled) {
+    opacity: 0.92;
+    box-shadow: var(--shadow-btn-hover);
+}
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* White card */
+.card {
+    background: var(--color-surface-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+}
+
+/* Error message box */
+.error-box {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-status-error-text);
+    background: var(--color-status-error-bg);
+    border: 1px solid var(--color-status-error-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+}
