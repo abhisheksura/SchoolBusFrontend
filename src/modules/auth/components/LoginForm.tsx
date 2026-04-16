@@ -16,7 +16,7 @@ import type { UserRole, LoginRequest } from "../types";
 // ---------------------------------------------------------------------------
 
 const ROLES = ["SUPER_ADMIN", "SCHOOL_ADMIN", "BRANCH_ADMIN"] as const;
-type Role = (typeof ROLES)[number];
+// type Role = (typeof ROLES)[number];
 
 const loginSchema = z.object({
     user_name: z

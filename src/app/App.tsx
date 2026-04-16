@@ -3,7 +3,7 @@
 
 import { Toaster } from "sonner";
 import { AppProviders } from "./providers";
-import AppRoutes from "./routes";
+import { AppRoutes } from "./routes";
 
 function App() {
     return (
