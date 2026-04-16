@@ -1,11 +1,6 @@
-// LoginPage
-// Orchestrates the 60/40 login layout and owns the auth side-effect.
-//
-// The critical fix vs the previous version:
-//   getMeApi() is called with the raw token passed as a header argument.
-//   The token is NOT written to the Zustand store until AFTER the role
-//   check passes. This prevents the useEffect that watches `accessToken`
-//   from firing early and navigating to /dashboard before validation runs.
+// modules/auth/pages/LoginPage.tsx
+// Orchestrates the 60/40 login layout.
+// Token is never written to the store until AFTER role validation passes.
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +15,7 @@ import { ROLE_LABELS } from "../types";
 import type { LoginRequest } from "../types";
 
 // ---------------------------------------------------------------------------
-// Map backend HTTP errors to readable messages
+// Error parser — extracts a readable message from any Axios error
 // ---------------------------------------------------------------------------
 
 function parseServerError(error: unknown): string {
@@ -31,16 +26,21 @@ function parseServerError(error: unknown): string {
         const status = axiosError.response?.status;
         const detail = axiosError.response?.data?.detail;
 
-        if (status === 401) return "Invalid username or password. Please try again.";
-        if (status === 403) return "Your account does not have permission for the selected role.";
-        if (status === 422 && detail) {
+        const detailMessage = (() => {
+            if (!detail) return null;
+            if (typeof detail === "string") return detail;
             if (Array.isArray(detail)) {
-                return (detail[0] as { msg?: string })?.msg ?? "Invalid request. Check your inputs.";
+                return (detail[0] as { msg?: string })?.msg ?? null;
             }
-            return String(detail);
-        }
-        if (status === 429) return "Too many login attempts. Please wait a moment and try again.";
+            return null;
+        })();
+
+        if (status === 401) return detailMessage ?? "Invalid username or password. Please try again.";
+        if (status === 403) return detailMessage ?? "Your account does not have permission for the selected role.";
+        if (status === 422) return detailMessage ?? "Invalid request. Check your inputs.";
+        if (status === 429) return detailMessage ?? "Too many login attempts. Please wait a moment and try again.";
         if (status && status >= 500) return "Server error. Please try again in a few moments.";
+        if (detailMessage) return detailMessage;
     }
     return "Unable to reach the server. Check your connection and try again.";
 }
@@ -56,38 +56,32 @@ const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [serverError, setServerError] = useState<string | null>(null);
 
-    // Redirect if already fully authenticated
+    // Redirect if already authenticated
     useEffect(() => {
         if (accessToken && user) {
             navigate("/dashboard", { replace: true });
         }
     }, [accessToken, user, navigate]);
 
-    // -------------------------------------------------------------------------
-    // Login handler
-    // -------------------------------------------------------------------------
-
     const handleLogin = async (data: LoginRequest): Promise<void> => {
         setIsLoading(true);
         setServerError(null);
 
         try {
-            // Step 1: get tokens from the backend
+            // Step 1: get tokens
             const { access_token } = await loginApi(data);
 
-            // Step 2: fetch the user profile by passing the token directly as a
-            // header argument -- NOT via the store. This means `accessToken` in
-            // Zustand stays null, so the useEffect above cannot fire yet.
+            // Step 2: fetch profile — pass token directly, do NOT write to store yet.
+            // Writing to the store here would fire the useEffect above and redirect
+            // to /dashboard before the role check below can run.
             const me = await getMeApi(access_token);
 
-            // Step 3: check that the role the user selected on the form is
-            // actually assigned to their account and is active.
+            // Step 3: validate that the selected role is assigned and active
             const hasSelectedRole = me.roles.some(
                 (r) => r.role_name === data.role && r.is_active
             );
 
             if (!hasSelectedRole) {
-                // Token never enters the store -- session is not established.
                 setServerError(
                     `Your account is not assigned the "${ROLE_LABELS[data.role]}" role. ` +
                     `Please select the correct role and try again.`
@@ -95,7 +89,7 @@ const LoginPage: React.FC = () => {
                 return;
             }
 
-            // Step 4: role check passed -- now write to the store and navigate.
+            // Step 4: role check passed — commit to store and navigate
             setAuth(access_token, me, data.role);
             navigate("/dashboard", { replace: true });
 
@@ -105,10 +99,6 @@ const LoginPage: React.FC = () => {
             setIsLoading(false);
         }
     };
-
-    // -------------------------------------------------------------------------
-    // Render
-    // -------------------------------------------------------------------------
 
     return (
         <main className="flex min-h-screen">

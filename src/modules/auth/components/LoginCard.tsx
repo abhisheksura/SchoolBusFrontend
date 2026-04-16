@@ -1,48 +1,30 @@
-// ─── LoginCard ───────────────────────────────────────────────────────────────
-// Right-panel shell of the login page (40% width on desktop, full-width mobile).
-// Provides: eyebrow label, heading, a {children} slot for the actual form,
-// and a footer with a help link.
-//
-// LoginPage composes this component around <LoginForm />.
+// modules/auth/components/LoginCard.tsx
+// Right panel shell — wraps LoginForm with heading and footer.
 
 import React from "react";
 import { Bus } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
-
 interface LoginCardProps {
     children: React.ReactNode;
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 const LoginCard: React.FC<LoginCardProps> = ({ children }) => {
     return (
         <div className="flex flex-1 lg:w-[40%] items-center justify-center bg-slate-50 min-h-screen px-6 py-12">
             <div className="w-full max-w-md flex flex-col gap-8">
 
-                {/* ── Mobile-only logo (hidden on desktop where BrandingCard shows) */}
+                {/* Mobile-only logo */}
                 <div className="flex lg:hidden items-center gap-2.5 justify-center">
                     <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-amber-500">
                         <Bus size={20} strokeWidth={2} className="text-white" />
                     </div>
-                    <span className="font-bold text-slate-800 text-lg tracking-tight">
-                        BusTracker
-                    </span>
+                    <span className="font-bold text-slate-800 text-lg tracking-tight">BusTracker</span>
                 </div>
 
-                {/* ── Card container ─────────────────────────────────────── */}
                 <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
-
-                    {/* Top amber accent bar */}
                     <div className="h-1 w-full bg-gradient-to-r from-amber-400 to-amber-500" />
 
                     <div className="p-8 flex flex-col gap-6">
-                        {/* ── Header ───────────────────────────────────────── */}
                         <div className="flex flex-col gap-1">
                             <p className="text-xs font-semibold uppercase tracking-widest text-amber-600">
                                 Admin Portal
@@ -55,12 +37,10 @@ const LoginCard: React.FC<LoginCardProps> = ({ children }) => {
                             </p>
                         </div>
 
-                        {/* ── Form slot ────────────────────────────────────── */}
                         {children}
                     </div>
                 </div>
 
-                {/* ── Footer ─────────────────────────────────────────────── */}
                 <p className="text-center text-xs text-slate-400">
                     Having trouble signing in?{" "}
                     <a

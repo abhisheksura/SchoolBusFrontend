@@ -1,12 +1,5 @@
-// ─── LoginForm ───────────────────────────────────────────────────────────────
-// The actual credential form rendered inside <LoginCard>.
-// Handles all local state: role selection, show/hide password, field errors.
-//
-// Validation uses React Hook Form + Zod — schema mirrors the backend
-// LoginRequest constraints exactly.
-//
-// On valid submit it calls the `onSubmit` prop passed down from <LoginPage>,
-// keeping API concerns out of the form component.
+// modules/auth/components/LoginForm.tsx
+// RHF + Zod login form. Injects platform:"web" at submit time.
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,9 +12,8 @@ import { ADMIN_ROLES } from "../types";
 import type { UserRole, LoginRequest } from "../types";
 
 // ---------------------------------------------------------------------------
-// Zod Schema — mirrors backend LoginRequest exactly
+// Zod schema — mirrors backend LoginRequest (platform injected at submit)
 // ---------------------------------------------------------------------------
-
 
 const ROLES = ["SUPER_ADMIN", "SCHOOL_ADMIN", "BRANCH_ADMIN"] as const;
 type Role = (typeof ROLES)[number];
@@ -31,10 +23,7 @@ const loginSchema = z.object({
         .string()
         .min(1, "Username is required")
         .max(50, "Username must be 50 characters or fewer")
-        .regex(
-            /^[a-zA-Z0-9_.-]+$/,
-            "Only letters, numbers, underscores, dots and hyphens allowed"
-        ),
+        .regex(/^[a-zA-Z0-9_.-]+$/, "Only letters, numbers, underscores, dots and hyphens allowed"),
     password: z
         .string()
         .min(8, "Password must be at least 8 characters")
@@ -55,13 +44,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 // ---------------------------------------------------------------------------
 
 interface LoginFormProps {
-    /** Called with validated form data — API call is done in the parent */
     onSubmit: (data: LoginRequest) => Promise<void>;
-
-    /** True while the parent is executing the login API call */
     isLoading: boolean;
-
-    /** Server-side error message to display (e.g. "Invalid credentials") */
     serverError: string | null;
 }
 
@@ -69,11 +53,7 @@ interface LoginFormProps {
 // Component
 // ---------------------------------------------------------------------------
 
-const LoginForm: React.FC<LoginFormProps> = ({
-    onSubmit,
-    isLoading,
-    serverError,
-}) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, serverError }) => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const {
@@ -87,38 +67,27 @@ const LoginForm: React.FC<LoginFormProps> = ({
         defaultValues: {
             user_name: "",
             password: "",
-            // Pre-select SCHOOL_ADMIN as the most common admin role
             role: "SCHOOL_ADMIN",
         },
     });
 
-    // Watch the role field to keep RoleButton UI in sync
     const selectedRole = watch("role") as UserRole;
 
-    // ── Handlers ──────────────────────────────────────────────────────────────
-
     const handleRoleSelect = (role: UserRole): void => {
-        // Cast is safe — ADMIN_ROLES only contains the three schema-valid values
         setValue("role", role as "SUPER_ADMIN" | "SCHOOL_ADMIN" | "BRANCH_ADMIN", {
             shouldValidate: true,
         });
     };
 
     const handleFormSubmit = async (values: LoginFormValues): Promise<void> => {
-        // Inject platform here so the form schema stays lean (no need to
-        // expose platform as a form field -- it is always "web" on this app).
+        // platform is always "web" on this app — injected here, not a form field
         await onSubmit({ ...values, platform: "web" } as LoginRequest);
     };
 
-    // ── Render ────────────────────────────────────────────────────────────────
-
     return (
-        <form
-            onSubmit={handleSubmit(handleFormSubmit)}
-            noValidate
-            className="flex flex-col gap-5"
-        >
-            {/* ── Role selector ───────────────────────────────────────────── */}
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate className="flex flex-col gap-5">
+
+            {/* Role selector */}
             <fieldset className="flex flex-col gap-2">
                 <legend className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
                     Sign in as
@@ -133,28 +102,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
                         />
                     ))}
                 </div>
-                {/* Hidden input to register role with RHF */}
                 <input type="hidden" {...register("role")} />
                 {errors.role && (
-                    <p className="text-xs text-red-500 mt-0.5">
-                        {errors.role.message}
-                    </p>
+                    <p className="text-xs text-red-500 mt-0.5">{errors.role.message}</p>
                 )}
             </fieldset>
 
-            {/* ── Divider ─────────────────────────────────────────────────── */}
+            {/* Divider */}
             <div className="relative flex items-center gap-3">
                 <div className="flex-1 h-px bg-slate-200" />
                 <span className="text-xs text-slate-400 shrink-0">credentials</span>
                 <div className="flex-1 h-px bg-slate-200" />
             </div>
 
-            {/* ── Username field ──────────────────────────────────────────── */}
+            {/* Username */}
             <div className="flex flex-col gap-1.5">
-                <label
-                    htmlFor="user_name"
-                    className="text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="user_name" className="text-sm font-medium text-slate-700">
                     Username
                 </label>
                 <div className="relative">
@@ -183,25 +146,17 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     />
                 </div>
                 {errors.user_name && (
-                    <p className="text-xs text-red-500">
-                        {errors.user_name.message}
-                    </p>
+                    <p className="text-xs text-red-500">{errors.user_name.message}</p>
                 )}
             </div>
 
-            {/* ── Password field ──────────────────────────────────────────── */}
+            {/* Password */}
             <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                    <label
-                        htmlFor="password"
-                        className="text-sm font-medium text-slate-700"
-                    >
+                    <label htmlFor="password" className="text-sm font-medium text-slate-700">
                         Password
                     </label>
-                    <a
-                        href="#"
-                        className="text-xs text-amber-600 hover:text-amber-700 font-medium transition-colors"
-                    >
+                    <a href="#" className="text-xs text-amber-600 hover:text-amber-700 font-medium transition-colors">
                         Forgot password?
                     </a>
                 </div>
@@ -226,7 +181,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
                                 : "border-slate-300 bg-white hover:border-slate-400",
                         ].join(" ")}
                     />
-                    {/* Toggle visibility */}
                     <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
@@ -240,27 +194,24 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     </button>
                 </div>
                 {errors.password && (
-                    <p className="text-xs text-red-500">
-                        {errors.password.message}
-                    </p>
+                    <p className="text-xs text-red-500">{errors.password.message}</p>
                 )}
             </div>
 
-            {/* ── Server error banner ─────────────────────────────────────── */}
-            {/* key=serverError forces React to remount the element on every new   */}
-            {/* error message, so the banner reliably appears even on repeat fails. */}
+            {/* Server error banner */}
+            {/* key=serverError forces React to remount on every new error message */}
             {serverError && (
                 <div
                     key={serverError}
                     role="alert"
                     className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-3 text-sm text-red-700"
                 >
-                    <span className="shrink-0 mt-0.5 text-red-500">⚠</span>
+                    <span className="shrink-0 mt-0.5 text-red-500">&#9888;</span>
                     {serverError}
                 </div>
             )}
 
-            {/* ── Submit button ───────────────────────────────────────────── */}
+            {/* Submit */}
             <button
                 type="submit"
                 disabled={isLoading}
@@ -268,8 +219,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     "flex items-center justify-center gap-2 w-full",
                     "rounded-lg bg-amber-500 py-2.5 px-5",
                     "text-sm font-semibold text-white",
-                    "shadow-md shadow-amber-500/25",
-                    "transition-all duration-150",
+                    "shadow-md shadow-amber-500/25 transition-all duration-150",
                     isLoading
                         ? "cursor-not-allowed opacity-70"
                         : "hover:bg-amber-600 active:scale-[0.98]",
@@ -278,7 +228,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 {isLoading ? (
                     <>
                         <Loader2 size={16} className="animate-spin" />
-                        Signing in…
+                        Signing in...
                     </>
                 ) : (
                     "Sign in"
