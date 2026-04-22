@@ -1,7 +1,7 @@
 # 🖥️ School Bus Tracker — React Frontend AI Context
 > **Platform:** Web (React + TypeScript)
 > **Target Roles:** SCHOOL_ADMIN, BRANCH_ADMIN (and SUPER_ADMIN where noted)
-> **Last Updated:** March 2026
+> **Last Updated:** April 2026
 > Attach this file at the start of every new conversation about the React frontend.
 
 ---
@@ -29,8 +29,8 @@ The backend is a FastAPI REST API running at a configurable base URL. All data i
 | Routing | React Router v6 (file-based layout pattern) |
 | State management | Zustand (auth + global UI state), TanStack Query v5 (server state) |
 | HTTP client | Axios with request/response interceptors for JWT |
-| UI component library | shadcn/ui (Radix + Tailwind) |
-| Styling | Tailwind CSS |
+| UI component library | Custom components (Tailwind only) |
+| Styling | Tailwind CSS v4 |
 | Forms | React Hook Form + Zod |
 | Tables | TanStack Table v8 |
 | Maps | React Leaflet (live bus tracking) |
@@ -39,22 +39,141 @@ The backend is a FastAPI REST API running at a configurable base URL. All data i
 | Date handling | date-fns |
 | Icons | Lucide React |
 
+
+---
+
+## 🎨 Design System (NEW)
+
+### Color Scheme - Yellow & Blue Theme
+Inspired by Smallcase design with school bus branding:
+
+```css
+:root {
+    /* Primary - School Bus Yellow */
+    --primary: 45 93% 47%;              /* #F5C518 */
+    --primary-foreground: 222 47% 11%;  /* Dark text on yellow */
+    
+    /* Secondary - Smallcase Blue */
+    --secondary: 217 91% 60%;           /* #4A90E2 */
+    --secondary-foreground: 0 0% 100%;  /* White text on blue */
+    
+    /* Neutral Colors */
+    --background: 0 0% 100%;            /* White */
+    --foreground: 222 47% 11%;          /* Near black */
+    --border: 214 32% 91%;              /* Light gray */
+    --muted: 210 40% 96%;               /* Very light gray */
+    --muted-foreground: 215 16% 47%;    /* Medium gray */
+}
+```
+
+### Typography
+- **Font Family**: Inter (Google Fonts)
+- **Weights**: 400 (regular), 500 (medium), 600 (semibold), 700 (bold)
+- **Features**: Proper ligatures and kerning enabled
+
+### Component Styling Standards
+All interactive components follow these patterns:
+
+```css
+/* Inputs */
+.input-base {
+    height: 48px (h-12);
+    padding: 12px 16px (px-4 py-3);
+    border: 2px solid;
+    border-radius: 12px (rounded-xl);
+    transition: all 200ms;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 12px 24px (px-6 py-3);
+    border-radius: 12px (rounded-xl);
+    font-weight: 600;
+    transition: all 200ms;
+}
+
+/* Cards */
+.card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px (rounded-2xl);
+    box-shadow: sm;
+}
+
+/* Role Buttons (Login Page) */
+.role-button {
+    border: 2px solid var(--border);
+    border-radius: 12px (rounded-xl);
+    padding: 16px;
+    transition: all 200ms;
+}
+.role-button:hover {
+    border-color: var(--primary);
+    background: var(--primary) / 0.05;
+}
+.role-button-selected {
+    border-color: var(--primary);
+    background: var(--primary) / 0.1;
+}
+```
+
 ---
 
 ## 🔐 Auth Flow
 
 ### JWT Strategy
-- `POST /api/v1/auth/login` → stores `access_token` in memory (Zustand), `refresh_token` in `httpOnly` cookie (or `localStorage` if no cookie support)
-- Access token expires in **30 minutes** — Axios interceptor silently refreshes via `POST /api/v1/auth/refresh`
-- On 401 response → call refresh → retry original request → on refresh failure, redirect to `/login`
-- `POST /api/v1/auth/logout` on explicit logout — also clear Zustand + cookie
+- `POST /api/v1/auth/login` → stores `access_token` in sessionStorage (Zustand persist)
+- Access token expires in **30 minutes** — Axios interceptor redirects to login on 401
+- On 401 response → clear auth state and redirect to `/auth/login`
+- `POST /api/v1/auth/logout` on explicit logout — also clear Zustand + sessionStorage
+
+### ⚠️ CONFLICT NOTE - Token Storage:
+- **Original Plan**: Access token in memory, refresh token in httpOnly cookie
+- **Current Implementation**: Both tokens stored in sessionStorage via Zustand persist
+- **Reason**: Simpler implementation, no cookie complexity
+- **Trade-off**: Less secure (vulnerable to XSS) but easier to implement
+- **Future**: Consider moving to httpOnly cookie for production
+
+### ⚠️ CONFLICT NOTE - Token Refresh:
+- **Original Plan**: Silent token refresh on 401
+- **Current Implementation**: Redirect to login on 401
+- **Reason**: Backend refresh endpoint not yet implemented
+- **Impact**: Users must re-login after 30 minutes
+- **Future**: Implement refresh token flow when backend supports it
 
 ### Auth Store (Zustand)
+
+**Current Implementation:**
+```typescript
+interface AuthStore {
+  accessToken: string | null
+  user: TokenPayload | null      // Decoded from JWT
+  isAuthenticated: boolean
+  setAuth: (token: string) => void
+  clearAuth: () => void
+  hasRole: (role: UserRole) => boolean
+  isTokenValid: () => boolean
+}
+
+interface TokenPayload {
+  sub: string
+  user_id: number
+  user_name: string
+  role: UserRole
+  school_id?: number
+  branch_id?: number
+  exp: number
+}
+```
+
+**Original Plan (not yet implemented):**
 ```typescript
 interface AuthStore {
   user: MeResponse | null        // from GET /api/v1/auth/me
   accessToken: string | null
-  roles: RoleResponse[]
+  roles: RoleResponse[]          // Multiple roles per user
   setAuth: (token: string, user: MeResponse) => void
   clearAuth: () => void
   hasRole: (role: RoleName) => boolean
@@ -63,8 +182,15 @@ interface AuthStore {
 }
 ```
 
+### ⚠️ CONFLICT NOTE - Auth Store:
+- **Original**: Stores full `MeResponse` with multiple roles array
+- **Current**: Stores decoded JWT `TokenPayload` with single role
+- **Impact**: Current implementation assumes one role per user
+- **Future**: Expand to support multiple roles when backend implements `/auth/me` endpoint
+
 ### Role-based Route Guards
-- `<RequireRole role="SCHOOL_ADMIN" />` — wraps protected routes
+- `<AuthGuard>` — checks `isAuthenticated` and token validity
+- `<RoleGuard allowedRoles={['SCHOOL_ADMIN', 'BRANCH_ADMIN']}>` — checks user role
 - Redirect to `/unauthorized` if role check fails
 - `SUPER_ADMIN` bypasses all school/branch scope checks
 
@@ -72,89 +198,64 @@ interface AuthStore {
 
 ## 📁 Project Structure
 
+**Current Implementation:**
 ```
 src/
-├── api/                    # All API calls, grouped by domain
-│   ├── client.ts           # Axios instance + interceptors
-│   ├── auth.ts
-│   ├── schools.ts
-│   ├── fleet.ts
-│   ├── drivers.ts
-│   ├── gps.ts
-│   ├── routes.ts
-│   ├── trips.ts
-│   ├── students.ts
-│   ├── assignments.ts
-│   ├── attendance.ts
-│   └── notifications.ts
-├── components/
-│   ├── ui/                 # shadcn/ui re-exports
-│   ├── layout/             # AppShell, Sidebar, Header, PageHeader
-│   ├── tables/             # Reusable DataTable wrapper
-│   ├── forms/              # Reusable FormField, Select, DatePicker
-│   └── shared/             # StatusBadge, EmptyState, LoadingSpinner
-├── features/               # Feature-specific components + hooks
-│   ├── auth/
-│   ├── schools/
-│   ├── fleet/
-│   ├── drivers/
-│   ├── gps/
-│   ├── routes/
-│   ├── trips/
-│   ├── students/
-│   ├── assignments/
-│   ├── attendance/
-│   └── notifications/
-├── hooks/                  # Shared custom hooks
-│   ├── useAuth.ts
-│   ├── usePagination.ts
-│   └── useDebounce.ts
-├── pages/                  # Route-level page components
-│   ├── dashboard/
-│   ├── schools/
-│   ├── fleet/
-│   ├── drivers/
-│   ├── gps/
-│   ├── routes/
-│   ├── trips/
-│   ├── students/
-│   ├── assignments/
-│   ├── attendance/
-│   └── notifications/
-├── stores/                 # Zustand stores
-│   ├── authStore.ts
-│   └── uiStore.ts
-├── types/                  # TypeScript interfaces mirroring API responses
-│   └── api.ts
-└── utils/
-    ├── formatters.ts       # Date, status label, phone formatters
-    └── constants.ts        # BASE_URL, PAGE_SIZE defaults
+├── main.tsx                    # Vite entry point
+├── app/                        # App bootstrap
+│   ├── App.tsx                 # Root component with auth setup
+│   ├── providers.tsx           # BrowserRouter + QueryClientProvider
+│   └── routes.tsx              # All route definitions + guards
+├── features/                   # Feature-based modules
+│   └── auth/                   # ✅ COMPLETE
+│       ├── components/
+│       │   ├── BrandingCard.tsx     # 60% left panel
+│       │   ├── LoginCard.tsx        # Right panel wrapper
+│       │   ├── LoginForm.tsx        # Form with role selection
+│       │   └── RoleButton.tsx       # Selectable role button
+│       ├── pages/
+│       │   └── LoginPage.tsx        # Login orchestrator
+│       ├── api.ts              # Login API call
+│       ├── store.ts            # Zustand auth store (sessionStorage)
+│       ├── types.ts            # Auth TypeScript types
+│       └── index.ts            # Public exports
+├── shared/
+│   ├── components/
+│   │   ├── AuthGuard.tsx       # Auth protection wrapper
+│   │   └── RoleGuard.tsx       # Role-based protection
+│   └── lib/
+│       ├── api.ts              # Axios instance + JWT interceptor
+│       └── queryClient.ts      # TanStack Query config
+└── styles/
+    └── globals.css             # Tailwind + yellow/blue theme + reusable classes
 ```
 
 ---
 
 ## 🔌 API Integration Conventions
 
-### Base Axios Client (`api/client.ts`)
+### Base Axios Client (`shared/lib/api.ts`)
+
 ```typescript
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+const api = axios.create({ 
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1',
+  withCredentials: true 
+})
 
 // Request — attach access token
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken
+  const token = getAccessToken()  // From auth helpers
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// Response — silent refresh on 401
+// Response — redirect on 401 (no refresh)
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    if (error.response?.status === 401 && !error.config._retry) {
-      error.config._retry = true
-      const newToken = await refreshAccessToken()
-      error.config.headers.Authorization = `Bearer ${newToken}`
-      return api(error.config)
+    if (error.response?.status === 401) {
+      clearAuth()
+      window.location.href = '/auth/login'
     }
     return Promise.reject(error)
   }
@@ -179,6 +280,10 @@ const { getSchoolIds, getBranchIds } = useAuth()
 // SUPER_ADMIN:  getSchoolIds() → [] (pass no filter — API returns all)
 ```
 
+### ⚠️ NOTE - School/Branch Filtering:
+Current auth store doesn't have `getSchoolIds()` or `getBranchIds()` methods yet.
+These will be added when implementing school/branch management features.
+
 ### Common Query Pattern
 ```typescript
 const { data, isLoading } = useQuery({
@@ -191,64 +296,83 @@ const { data, isLoading } = useQuery({
 
 ## 📊 Pages & Features
 
-### Dashboard (`/dashboard`)
+#### Login Page (`/auth/login`)
+- 60/40 split layout (branding left, form right)
+- Yellow gradient branding panel with stats and features
+- Role selection with 4 roles: Super Admin, School Admin, Branch Admin, Driver
+- Username and password fields with proper spacing (no overlapping)
+- Password visibility toggle
+- Remember me checkbox
+- Forgot password link
+- Form validation and error handling
+- Smooth hover states and transitions
+- Responsive design (mobile-friendly)
+
+#### Dashboard Placeholder (`/dashboard`)
+- Protected route requiring authentication
+- Basic placeholder layout
+- Future: Summary cards, trip timeline, notifications
+
+### 📋 Future Features
+
+#### Dashboard (`/dashboard`)
 - Summary cards: total buses, active trips today, total students, pending leaves
 - Today's trips timeline (status chip per trip)
 - Recent notifications list
 
-### Schools (`/schools`) — SUPER_ADMIN + SCHOOL_ADMIN
+#### Schools (`/schools`) — SUPER_ADMIN + SCHOOL_ADMIN
 - Table: school name, is_active, branch count, actions
 - Create/Edit school via slide-over form
 - Drill-in to branches list
 
-### Branches (`/schools/:schoolId/branches`)
+#### Branches (`/schools/:schoolId/branches`)
 - Table: branch name, phone, email, is_active
 - Create/Edit branch form
 
-### Fleet — Buses (`/fleet/buses`)
+#### Fleet — Buses (`/fleet/buses`)
 - Table: bus_number, capacity, is_active, current GPS device
 - Create/Edit bus form
 - Link to current device assignment inline
 
-### Drivers (`/drivers`)
+#### Drivers (`/drivers`)
 - Table: name, phone, license_number, is_active
 - Create/Edit driver form with phone validation
 
-### GPS Devices (`/gps/devices`)
+#### GPS Devices (`/gps/devices`)
 - Table: IMEI, is_active, currently assigned bus
 - Register device form
 - Assign/Unassign device to bus — confirmation dialog
 
-### Routes (`/routes`)
+#### Routes (`/routes`)
 - List view: route_code, route_name, is_active
 - Detail view: route with ordered stop list (PICKUP tab + DROPOFF tab)
 - Add/remove stops with drag-to-reorder for stop_sequence
 - Stop management: create/edit stop with lat/lng map picker
 
-### Trips (`/trips`)
+#### Trips (`/trips`)
 - Filterable table: date picker, route filter, status filter
 - Create trip: select route + date + trip_type + optional bus/driver
 - Status transition buttons: `Start Trip`, `Complete Trip`, `Cancel Trip`
 - Live tracking view: Leaflet map showing bus position in real time
   - Polls `GET /api/v1/trips/trips/{trip_id}/live-status` every 5 seconds when IN_PROGRESS
 
-### Students (`/students`)
+#### Students (`/students`)
 - Table: name, grade, section, admission_number, is_active
 - Create/Edit student (links to user_id)
 - Parent management tab: list linked parents, add/remove/update relationship
 - Leave requests tab: list requests, approve/reject with status badge
 
-### Assignments (`/assignments`)
+#### Assignments (`/assignments`)
 - Assign student to route form: student picker + route picker + stop picker + trip_type
 - View by student or by route (toggle)
 - Deactivate assignment
 
-### Attendance (`/attendance`)
+#### Attendance (`/attendance`)
 - Filter by trip → show all students + attendance status
 - Filter by student → show history across trips
 - Correct attendance status (BRANCH_ADMIN only)
 
-### Notifications (`/notifications`)
+#### Notifications (`/notifications`)
 - User's own inbox: unread count badge in header
 - Mark as read inline
 - Admin audit view: filter by type, status, user, trip
@@ -258,17 +382,37 @@ const { data, isLoading } = useQuery({
 ## 🎨 UI/UX Conventions
 
 ### Layout
-- Collapsible sidebar with role-aware nav items
-- Breadcrumb on every page
-- `PageHeader` component: title + primary action button
+- Collapsible sidebar with role-aware nav items **Not yet implemented**
+- Breadcrumb on every page **Not yet implemented**
+- `PageHeader` component: title + primary action button **Not yet implemented**
 
-### Tables (TanStack Table v8)
+### Current Components (Login Page Only)
+
+#### Reusable CSS Classes (in `globals.css`)
+```css
+.input-base       /* Standard input styling */
+.btn-primary      /* Primary button styling */
+.card             /* Card container styling */
+.error-box        /* Error message styling */
+.role-button      /* Role selection button */
+.role-button-selected  /* Selected role state */
+```
+
+#### React Components
+- `<BrandingCard />` - 60% left panel with yellow gradient
+- `<LoginCard />` - Right panel wrapper with heading
+- `<LoginForm />` - Form with role selection and inputs
+- `<RoleButton />` - Individual role selection button
+- `<AuthGuard />` - Route protection wrapper
+- `<RoleGuard />` - Role-based route protection
+
+### Tables (TanStack Table v8) - NOT YET IMPLEMENTED
 - Server-side pagination — never load all records
 - Sortable columns where applicable
 - Row actions: Edit (pencil), Deactivate (trash with confirm dialog)
 - `active_only` toggle in toolbar — admins only
 
-### Forms (React Hook Form + Zod)
+### Forms (React Hook Form + Zod) - NOT YET IMPLEMENTED
 ```typescript
 // Zod schema mirrors backend Pydantic schema exactly
 const busCreateSchema = z.object({
@@ -283,7 +427,7 @@ const busCreateSchema = z.object({
 - Submit button shows loading state
 - On success: invalidate affected query keys + show toast
 
-### Status Badges
+### Status Badges - NOT YET IMPLEMENTED
 ```typescript
 // Map backend enum values to display labels + colors
 const TRIP_STATUS_COLORS = {
@@ -294,10 +438,28 @@ const TRIP_STATUS_COLORS = {
 }
 ```
 
-### Confirmation Dialogs
+### Confirmation Dialogs - NOT YET IMPLEMENTED
 - All destructive actions (deactivate, unassign, reject leave) require a confirmation `AlertDialog`
 
 ### Error Handling
+
+**Current Implementation (Basic):**
+```typescript
+export const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    if (error.response?.data?.detail) {
+      if (Array.isArray(error.response.data.detail)) {
+        return error.response.data.detail.map(e => e.msg || e.message).join(', ')
+      }
+      return error.response.data.detail
+    }
+    return error.message || 'Network error'
+  }
+  return 'An unexpected error occurred'
+}
+```
+
+**Future Enhancement:**
 - `422` validation errors → extract `detail` array → show per-field errors
 - `404` → show inline "Not found" state
 - `409` conflict → show specific toast (e.g. "Bus number already taken")
@@ -306,9 +468,34 @@ const TRIP_STATUS_COLORS = {
 
 ---
 
-## 🗂️ TypeScript Types (`types/api.ts`)
+## 🗂️ TypeScript Types
 
-Mirror every backend response schema:
+### Current Implementation (`features/auth/types.ts`)
+```typescript
+export type UserRole = 'SUPER_ADMIN' | 'SCHOOL_ADMIN' | 'BRANCH_ADMIN' | 'DRIVER' | 'PARENT' | 'STUDENT';
+
+export interface TokenPayload {
+  sub: string;
+  user_id: number;
+  user_name: string;
+  role: UserRole;
+  school_id?: number;
+  branch_id?: number;
+  exp: number;
+}
+
+export interface LoginRequest {
+  user_name: string;
+  password: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}
+```
+
+### Future Types (`types/api.ts`) - Mirror Backend Schemas
 
 ```typescript
 // Auth
@@ -355,17 +542,48 @@ interface NotificationResponse { notification_id: number; user_id: number; title
 
 ## 🔑 Key Rules
 
-| Rule | Detail |
-|---|---|
-| Never store access token in localStorage | Keep in Zustand memory — persists across re-renders, clears on tab close |
-| Always pass `school_id` + `branch_id` | Required on every scoped list endpoint as query params |
-| Invalidate on mutation | After every create/update/delete: `queryClient.invalidateQueries(['domain'])` |
-| Active-only toggle | Only show `active_only=false` option to `SCHOOL_ADMIN`+ — enforce in UI |
-| Role guard every page | Use `<RequireRole>` wrapper — never rely on API returning 403 as the only guard |
-| Zod on all forms | Every form field must have a Zod validator matching the backend constraint |
-| No direct date manipulation | Always use `date-fns` — never `new Date()` arithmetic inline |
-| Live tracking polling | Use `refetchInterval: 5000` on TanStack Query — only when trip is `IN_PROGRESS` |
-| Leaflet map lazy-loaded | React Leaflet has SSR issues — always lazy import the map component |
+| Rule | Detail | Status |
+|---|---|---|---|
+| Always pass `school_id` + `branch_id` | Required on every scoped list endpoint as query params | 📋 TODO |
+| Invalidate on mutation | After every create/update/delete: `queryClient.invalidateQueries(['domain'])` | 📋 TODO |
+| Active-only toggle | Only show `active_only=false` option to `SCHOOL_ADMIN`+ — enforce in UI | 📋 TODO |
+| Role guard every page | Use `<AuthGuard>` and `<RoleGuard>` wrappers | ✅ DONE |
+| Zod on all forms | Every form field must have a Zod validator matching the backend constraint | 📋 TODO |
+| No direct date manipulation | Always use `date-fns` — never `new Date()` arithmetic inline | 📋 TODO |
+| Live tracking polling | Use `refetchInterval: 5000` on TanStack Query — only when trip is `IN_PROGRESS` | 📋 TODO |
+| Leaflet map lazy-loaded | React Leaflet has SSR issues — always lazy import the map component | 📋 TODO |
+| **4-space indentation** | All code files use 4 spaces for indentation | ✅ DONE |
+| **Yellow/Blue theme** | Primary yellow (#F5C518), Secondary blue (#4A90E2) | ✅ DONE |
+
+---
+
+## 🎯 Implementation Status
+
+### ✅ Completed
+1. **Project Setup**: Vite, React, TypeScript, Tailwind CSS
+2. **Design System**: Yellow/blue color scheme, Inter font, reusable CSS classes
+3. **Auth Module**: Complete login flow with JWT
+4. **Auth Store**: Zustand with sessionStorage persistence
+5. **API Client**: Axios with JWT interceptor
+6. **Route Guards**: AuthGuard and RoleGuard components
+7. **Login Page**: 60/40 split layout with branding and form
+8. **Hover States**: Fixed and working properly
+9. **Form Spacing**: No overlapping issues
+
+### 🚧 In Progress
+None currently
+
+### 📋 To Do (Priority Order)
+1. **Dashboard Layout**: Sidebar navigation, header, breadcrumbs
+2. **Dashboard Page**: Summary cards, statistics, recent activity
+3. **Schools Management**: CRUD operations for schools (SUPER_ADMIN only)
+4. **Branches Management**: CRUD operations for branches
+5. **Fleet Management**: Buses, drivers, GPS devices
+6. **Route Planning**: Routes, stops, map integration
+7. **Trip Management**: Scheduling, live tracking
+8. **Student Management**: Students, parents, assignments
+9. **Attendance Tracking**: Mark and view attendance
+10. **Notifications**: Inbox and alerts
 
 ---
 
@@ -373,9 +591,72 @@ interface NotificationResponse { notification_id: number; user_id: number; title
 
 | # | Decision | Status | Notes |
 |---|---|---|---|
-| 1 | Token storage — memory vs localStorage | ⏳ Pending | Memory safer (no XSS risk), but lost on refresh. Consider `sessionStorage` |
-| 2 | Real-time notifications — polling vs WebSocket | ⏳ Pending | Poll `GET /notifications/` every 30s initially |
-| 3 | Live tracking update interval | ⏳ Pending | 5s feels right — may need to be configurable |
-| 4 | Map provider — Leaflet vs Google Maps | ⏳ Pending | Leaflet is free and open, Google adds cost |
-| 5 | i18n / multi-language support | ⏳ Pending | `react-i18next` if needed |
-| 6 | Dark mode | ⏳ Pending | Tailwind `dark:` classes + `next-themes` or CSS variable approach |
+| 1 | Token storage — memory vs localStorage vs sessionStorage | ✅ **DECIDED: sessionStorage** | Using Zustand persist with sessionStorage |
+| 2 | Token refresh implementation | ⏳ **Pending** | Currently no refresh, just logout on 401. Implement when backend ready |
+| 3 | Real-time notifications — polling vs WebSocket | ⏳ Pending | Poll `GET /notifications/` every 30s initially |
+| 4 | Live tracking update interval | ⏳ Pending | 5s feels right — may need to be configurable |
+| 5 | Map provider — Leaflet vs Google Maps | ✅ **DECIDED: Leaflet** | Free, open-source, already in dependencies |
+| 6 | i18n / multi-language support | ⏳ Pending | `react-i18next` if needed |
+| 7 | Dark mode | ⏳ Pending | CSS variables already support dark mode, just need UI toggle |
+| 8 | UI Component Library | ✅ **DECIDED: Custom components** | No shadcn/ui, building from scratch |
+| 9 | Auth: Single role vs Multiple roles | ⚠️ **Conflict** | Backend may support multiple, current implementation assumes single |
+
+---
+
+## 🔄 Migration Notes (Original → Current)
+
+### What Changed
+
+1. **UI Components**: Switched from shadcn/ui to custom Tailwind components
+2. **Token Storage**: Changed from memory-only to sessionStorage with Zustand persist
+3. **Token Refresh**: Removed for now (redirect to login instead)
+4. **Folder Structure**: Feature-based instead of domain-based
+5. **Design System**: Added yellow/blue Smallcase-inspired theme
+6. **Auth Flow**: Simplified to JWT decode only (no `/auth/me` call)
+
+### What Stayed the Same
+
+1. **Tech Stack**: React, TypeScript, Vite, TanStack Query, Axios, Zustand
+2. **Backend Integration**: FastAPI REST API
+3. **Route Guards**: Protected routes with role-based access
+4. **Code Style**: 4-space indentation, functional components
+5. **Future Features**: All planned pages and features remain the same
+
+---
+
+## 📚 Developer Notes
+
+### Critical Files
+- `src/styles/globals.css` - Contains all theme variables and reusable CSS classes
+- `src/features/auth/store.ts` - Auth state management with sessionStorage
+- `src/shared/lib/api.ts` - Axios configuration with JWT interceptor
+- `src/app/routes.tsx` - All route definitions and guards
+
+### Common Issues & Solutions
+
+**Issue**: Hover states not working on role buttons
+**Solution**: Ensure `.role-button` class has default `border-color` in CSS
+
+**Issue**: Input icons overlapping with text
+**Solution**: Icons need `z-10` and `pointer-events-none`, inputs need proper padding
+
+**Issue**: Form elements too close together
+**Solution**: Use `space-y-6` on form container, `mt-8` on submit button
+
+**Issue**: Token expires and user gets logged out
+**Solution**: Normal behavior - implement refresh token when backend supports it
+
+---
+
+## 🎓 Learning Resources
+
+- [React Router v6 Docs](https://reactrouter.com)
+- [TanStack Query v5 Docs](https://tanstack.com/query/latest)
+- [Zustand Docs](https://zustand-demo.pmnd.rs/)
+- [Tailwind CSS Docs](https://tailwindcss.com)
+- [React Hook Form Docs](https://react-hook-form.com)
+- [Zod Docs](https://zod.dev)
+
+---
+
+**End of Frontend Context**
