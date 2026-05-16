@@ -3,13 +3,14 @@
 // Keeping them here means AppRoutes stays clean and bundle-split boundaries
 // are easy to audit at a glance.
 
-// import { lazy } from "react";
+import { lazy } from "react";
+
+export const DashboardPage     = lazy(() => import("@/modules/dashboard/pages/DashboardPage"));
+export const BusesPage         = lazy(() => import("@/modules/buses/pages/BusesPage"));
 
 /*
-export const DashboardPage     = lazy(() => import("@/modules/dashboard/pages/DashboardPage"));
 export const SchoolsPage       = lazy(() => import("@/modules/schools/pages/SchoolsPage"));
 export const BranchesPage      = lazy(() => import("@/modules/schools/pages/BranchesPage"));
-export const BusesPage         = lazy(() => import("@/modules/buses/pages/BusesPage"));
 export const DriversPage       = lazy(() => import("@/modules/users/pages/DriversPage"));
 export const StudentsPage      = lazy(() => import("@/modules/users/pages/StudentsPage"));
 export const AssignmentsPage   = lazy(() => import("@/modules/users/pages/AssignmentsPage"));

@@ -2,36 +2,36 @@
 // Shared formatting helpers. Always use date-fns — never raw Date arithmetic.
 
 
-//import { format, parseISO, formatDistanceToNow } from "date-fns";
+import { format, parseISO, formatDistanceToNow } from "date-fns";
 
 // ---------------------------------------------------------------------------
 // Date / time
 // ---------------------------------------------------------------------------
 
 /** "12 Jan 2025" */
-/*
+
 export function formatDate(iso: string): string {
     return format(parseISO(iso), "dd MMM yyyy");
 }
-*/
+
 /** "12 Jan 2025, 09:45 AM" */
-/*
+
 export function formatDateTime(iso: string): string {
     return format(parseISO(iso), "dd MMM yyyy, hh:mm a");
 }
-*/
+
 /** "2 hours ago" */
-/*
+
 export function formatRelative(iso: string): string {
     return formatDistanceToNow(parseISO(iso), { addSuffix: true });
 }
-*/
+
 /** "09:45 AM" */
-/*
+
 export function formatTime(iso: string): string {
     return format(parseISO(iso), "hh:mm a");
 }
-*/
+
 // ---------------------------------------------------------------------------
 // Phone
 // ---------------------------------------------------------------------------
