@@ -4,8 +4,8 @@ import { lazy } from "react";
 import type { RouteConfig } from "@/core/types/routes";
 
 const DriversPage     = lazy(() => import("./pages/DriversPage"));
-const StudentsPage    = lazy(() => import("./pages/StudentsPage"));
-const AssignmentsPage = lazy(() => import("./pages/AssignmentsPage"));
+// const StudentsPage    = lazy(() => import("./pages/StudentsPage"));
+// const AssignmentsPage = lazy(() => import("./pages/AssignmentsPage"));
 
 export const userRoutes: RouteConfig[] = [
     {
@@ -18,7 +18,7 @@ export const userRoutes: RouteConfig[] = [
         group: "people",
         order: 0,
     },
-    {
+/*    {
         path: "/students",
         element: StudentsPage,
         roles: ["BRANCH_ADMIN"],
@@ -28,6 +28,7 @@ export const userRoutes: RouteConfig[] = [
         group: "people",
         order: 1,
     },
+
     {
         path: "/assignments",
         element: AssignmentsPage,
@@ -38,4 +39,5 @@ export const userRoutes: RouteConfig[] = [
         group: "operations",
         order: 2,
     },
+*/
 ];
