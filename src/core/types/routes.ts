@@ -45,7 +45,7 @@ export interface RouteConfig {
 export type SidebarIcon =
     | "LayoutDashboard"
     | "School"
-    | "GitBranch"
+    | "Building2"
     | "Bus"
     | "Users"
     | "MapPin"

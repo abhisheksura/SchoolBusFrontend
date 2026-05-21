@@ -9,9 +9,9 @@
 import { dashboardRoutes }    from "@/modules/dashboard/routes";
 import { busRoutes }          from "@/modules/buses/routes";
 import { userRoutes }         from "@/modules/users/routes";
+import { schoolRoutes }       from "@/modules/schools/routes";
 
-/*import { schoolRoutes }       from "@/modules/schools/routes";
-import { trackingRoutes }     from "@/modules/tracking/routes";
+/*import { trackingRoutes }     from "@/modules/tracking/routes";
 import { routeRoutes }        from "@/modules/routes/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
 import { notificationRoutes } from "@/modules/notifications/routes";
@@ -27,8 +27,8 @@ export const allRoutes: RouteConfig[] = [
     ...busRoutes,
     ...userRoutes,
 
- /*   ...schoolRoutes,
-   
+   ...schoolRoutes,
+/*  
     ...trackingRoutes,
     ...routeRoutes,
     ...attendanceRoutes,

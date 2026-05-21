@@ -6,7 +6,7 @@ import React from "react";
 import {
     LayoutDashboard,
     School,
-    GitBranch,
+    Building2,
     Bus,
     Users,
     MapPin,
@@ -24,7 +24,7 @@ import type { SidebarIcon as SidebarIconName } from "@/core/types/routes";
 const ICON_MAP: Record<SidebarIconName, React.FC<LucideProps>> = {
     LayoutDashboard,
     School,
-    GitBranch,
+    Building2,
     Bus,
     Users,
     MapPin,

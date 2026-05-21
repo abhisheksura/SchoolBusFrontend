@@ -79,7 +79,8 @@ const BusCard: React.FC<BusCardProps> = ({ bus, showSchool, onEdit, onDeactivate
         : "Small Bus";
 
     return (
-        <div className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all duration-200
+                        hover:border-blue-400 hover:shadow-lg hover:-translate-y-1">
             <div className="flex items-start justify-between px-5 pt-5 pb-3">
                 <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">

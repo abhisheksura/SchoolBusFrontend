@@ -1,6 +1,6 @@
 // src/modules/routes/api/index.ts
 
-import api from '../../../core/api/client';
+import api from '@/core/api/client';
 import type { PaginatedResponse, PaginationParams } from '../../../core/types/pagination';
 import type {
     Route,

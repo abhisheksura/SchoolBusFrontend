@@ -22,6 +22,7 @@ export interface PaginationParams {
 export interface PaginationParams {
     page?: number;
     page_size?: number;
+    search?: string;
     school_id?: number;
     branch_id?: number;
     active_only?: boolean;

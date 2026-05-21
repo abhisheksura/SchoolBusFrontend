@@ -28,7 +28,6 @@ export const userRoutes: RouteConfig[] = [
         group: "people",
         order: 1,
     },
-
     {
         path: "/assignments",
         element: AssignmentsPage,
