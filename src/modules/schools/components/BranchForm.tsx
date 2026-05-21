@@ -1,11 +1,12 @@
 // src/modules/schools/components/BranchForm.tsx
 
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Branch } from '../types';
+import type { BranchResponse } from '../types';
 
-// Zod schema matching backend validation
+// Zod schema matching backend model validation parameters
 const branchSchema = z.object({
     branch_name: z.string().min(1, 'Branch name is required').max(100, 'Branch name too long'),
     branch_address: z.string().max(200, 'Address too long').optional(),
@@ -23,7 +24,7 @@ const branchSchema = z.object({
 type BranchFormData = z.infer<typeof branchSchema>;
 
 interface BranchFormProps {
-    branch?: Branch;
+    branch?: BranchResponse;
     onSubmit: (data: BranchFormData) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
@@ -50,11 +51,12 @@ export const BranchForm: React.FC<BranchFormProps> = ({
         },
     });
 
+    // Reusable design patterns matching the application's main inputs
     const inputClass = "flex h-12 w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200";
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Branch Name */}
+            {/* Branch Name Label and Field */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
                     Branch Name <span className="text-red-600">*</span>
@@ -71,7 +73,7 @@ export const BranchForm: React.FC<BranchFormProps> = ({
                 )}
             </div>
 
-            {/* Address */}
+            {/* Address Information Field */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
                     Address
@@ -88,7 +90,7 @@ export const BranchForm: React.FC<BranchFormProps> = ({
                 )}
             </div>
 
-            {/* Phone */}
+            {/* Contact Phone Details */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
                     Phone Number
@@ -105,7 +107,7 @@ export const BranchForm: React.FC<BranchFormProps> = ({
                 )}
             </div>
 
-            {/* Email */}
+            {/* Email Contact point */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
                     Email Address
@@ -122,7 +124,7 @@ export const BranchForm: React.FC<BranchFormProps> = ({
                 )}
             </div>
 
-            {/* Active Status (only show when editing) */}
+            {/* Active Status Toggle (Conditioned for editing loops) */}
             {branch && (
                 <div>
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -142,7 +144,7 @@ export const BranchForm: React.FC<BranchFormProps> = ({
                 </div>
             )}
 
-            {/* Actions */}
+            {/* Form Interactivity Actions */}
             <div className="flex gap-3 pt-4">
                 <button
                     type="submit"

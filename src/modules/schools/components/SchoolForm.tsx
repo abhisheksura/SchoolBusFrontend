@@ -1,20 +1,22 @@
 // src/modules/schools/components/SchoolForm.tsx
 
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { School } from '../types';
+import type { SchoolResponse } from '../types';
 
-// Zod schema matching backend validation
+// Zod validation schema matching backend multi-tenant structure
 const schoolSchema = z.object({
-    school_name: z.string().min(1, 'School name is required').max(100, 'School name too long'),
+    school_name: z.string().min(1, 'School name is required').max(150, 'School name too long'),
+    school_code: z.string().min(2, 'Code must be at least 2 characters').max(20, 'Code too long'),
     is_active: z.boolean().optional(),
 });
 
 type SchoolFormData = z.infer<typeof schoolSchema>;
 
 interface SchoolFormProps {
-    school?: School;
+    school?: SchoolResponse;
     onSubmit: (data: SchoolFormData) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
@@ -34,13 +36,17 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
         resolver: zodResolver(schoolSchema),
         defaultValues: {
             school_name: school?.school_name || '',
+            school_code: school?.school_code || '',
             is_active: school?.is_active ?? true,
         },
     });
 
+    // Reusable styling matching the application's input theme
+    const inputClass = "flex h-12 w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200";
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* School Name */}
+            {/* School Name Input */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
                     School Name <span className="text-red-600">*</span>
@@ -48,7 +54,7 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                 <input
                     {...register('school_name')}
                     type="text"
-                    className="flex h-12 w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                    className={inputClass}
                     placeholder="Enter school name"
                     disabled={isLoading}
                 />
@@ -57,7 +63,24 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                 )}
             </div>
 
-            {/* Active Status (only show when editing) */}
+            {/* School Unique Identifier Code */}
+            <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                    School Code / Slug <span className="text-red-600">*</span>
+                </label>
+                <input
+                    {...register('school_code')}
+                    type="text"
+                    className={inputClass}
+                    placeholder="e.g., greenwood-high"
+                    disabled={isLoading || !!school} // Lock the unique slug identifier during edits
+                />
+                {errors.school_code && (
+                    <p className="mt-1.5 text-sm text-red-600">{errors.school_code.message}</p>
+                )}
+            </div>
+
+            {/* Tenant Active State Toggle (Visible during update cycles only) */}
             {school && (
                 <div>
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -72,12 +95,12 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({
                         </span>
                     </label>
                     <p className="text-xs text-muted-foreground mt-1">
-                        Inactive schools cannot be used for new operations
+                        Deactivating a school suspends access for all of its underlying branches and users.
                     </p>
                 </div>
             )}
 
-            {/* Actions */}
+            {/* Form Action Submissions */}
             <div className="flex gap-3 pt-4">
                 <button
                     type="submit"
