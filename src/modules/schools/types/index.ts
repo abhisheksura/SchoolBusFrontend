@@ -1,7 +1,7 @@
 // src/modules/schools/types/index.ts
 
 // ==================== School Types ====================
-export interface School {
+export interface SchoolResponse {
     school_id: number;
     school_name: string;
     is_active: boolean;
@@ -19,7 +19,7 @@ export interface SchoolUpdateRequest {
 }
 
 // ==================== Branch Types ====================
-export interface Branch {
+export interface BranchResponse {
     branch_id: number;
     school_id: number;
     branch_name: string;
@@ -48,7 +48,23 @@ export interface BranchUpdateRequest {
 }
 
 // ==================== School with Branches ====================
-export interface SchoolWithBranches extends School {
-    branches?: Branch[];
+export interface SchoolWithBranches extends SchoolResponse {
+    branches?: BranchResponse[];
     branch_count?: number;
+}
+
+// ==================== Filters ====================
+ 
+export interface SchoolFilters {
+    is_active?: boolean;
+    search?: string;
+    page?: number;
+    page_size?: number;
+}
+
+export interface BranchFilters {
+    search?: string;
+    is_active?: boolean;
+    page?: number;
+    page_size?: number;
 }
