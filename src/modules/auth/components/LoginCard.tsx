@@ -22,7 +22,7 @@ const LoginCard: React.FC<LoginCardProps> = ({ children }) => {
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
-                    <div className="h-1 w-full bg-linear-to-r from-amber-400 to-amber-500" />
+                    <div className="h-1 w-full bg-linear-to-r from-yellow-400 to-yellow-500" />
 
                     <div className="p-8 flex flex-col gap-6">
                         <div className="flex flex-col gap-1">

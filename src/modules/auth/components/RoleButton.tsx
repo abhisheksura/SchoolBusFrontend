@@ -28,14 +28,14 @@ const RoleButton: React.FC<RoleButtonProps> = ({ role, isSelected, onSelect }) =
                 "relative flex items-start gap-3 w-full rounded-xl p-3",
                 "text-left cursor-pointer transition-all duration-200",
                 isSelected
-                    ? "bg-amber-50 border-2 border-amber-500 shadow-sm"
-                    : "bg-white border-2 border-slate-200 hover:border-amber-300 hover:bg-amber-50/40",
+                    ? "bg-amber-50 border-2 border-yellow-500 shadow-sm"
+                    : "bg-white border-2 border-slate-200 hover:border-yellow-300 hover:bg-amber-50/40",
             ].join(" ")}
         >
             <span
                 className={[
                     "shrink-0 flex items-center justify-center w-8 h-8 rounded-lg mt-0.5 transition-colors duration-200",
-                    isSelected ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-500",
+                    isSelected ? "bg-yellow-500 text-white" : "bg-slate-100 text-slate-500",
                 ].join(" ")}
             >
                 {ROLE_ICONS[role]}
@@ -45,7 +45,7 @@ const RoleButton: React.FC<RoleButtonProps> = ({ role, isSelected, onSelect }) =
                 <span
                     className={[
                         "block text-sm font-semibold leading-tight tracking-tight",
-                        isSelected ? "text-amber-700" : "text-slate-700",
+                        isSelected ? "text-yellow-700" : "text-slate-700",
                     ].join(" ")}
                 >
                     {ROLE_LABELS[role]}
@@ -59,7 +59,7 @@ const RoleButton: React.FC<RoleButtonProps> = ({ role, isSelected, onSelect }) =
                 className={[
                     "shrink-0 w-4 h-4 rounded-full border-2 mt-1 transition-all duration-200",
                     isSelected
-                        ? "border-amber-500 bg-amber-500 shadow-[inset_0_0_0_2px_white]"
+                        ? "border-yellow-500 bg-yellow-500 shadow-[inset_0_0_0_2px_white]"
                         : "border-slate-300 bg-white",
                 ].join(" ")}
                 aria-hidden="true"

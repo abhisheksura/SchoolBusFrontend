@@ -215,14 +215,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, serverError 
             <button
                 type="submit"
                 disabled={isLoading}
+
+bg-yellow-400
                 className={[
                     "flex items-center justify-center gap-2 w-full",
-                    "rounded-lg bg-amber-500 py-2.5 px-5",
-                    "text-sm font-semibold text-white",
+                    "rounded-lg bg-yellow-400 py-2.5 px-5",
+                    "text-sm font-semibold text-black",
                     "shadow-md shadow-amber-500/25 transition-all duration-150",
                     isLoading
                         ? "cursor-not-allowed opacity-70"
-                        : "hover:bg-amber-600 active:scale-[0.98]",
+                        : "hover:bg-yellow-600 active:scale-[0.98]",
                 ].join(" ")}
             >
                 {isLoading ? (

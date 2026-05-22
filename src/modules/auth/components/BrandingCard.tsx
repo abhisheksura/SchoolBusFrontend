@@ -18,7 +18,7 @@ const BrandingCard: React.FC = () => {
 
             {/* Logo */}
             <div className="relative z-10 flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500 shadow-lg shadow-amber-500/30">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-yellow-400 shadow-lg shadow-amber-500/30">
                     <Bus size={22} strokeWidth={2} className="text-white" />
                 </div>
                 <div>
@@ -30,7 +30,7 @@ const BrandingCard: React.FC = () => {
             {/* Headline */}
             <div className="relative z-10 flex flex-col gap-6">
                 <span className="inline-flex items-center self-start gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400 tracking-wide">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
                     Live Fleet Monitoring
                 </span>
 
@@ -66,7 +66,7 @@ const BrandingCard: React.FC = () => {
                     {["Multi-School", "Role-Based Access", "Live GPS", "Attendance", "Parent Alerts"].map((tag) => (
                         <span
                             key={tag}
-                            className="rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-slate-400"
+                            className="rounded-full border border-yellow-600 bg-slate-800/60 px-3 py-1 text-xs text-slate-400"
                         >
                             {tag}
                         </span>
