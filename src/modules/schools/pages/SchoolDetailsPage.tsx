@@ -16,8 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getSchool, getBranches, updateSchool, deleteSchool } from "../api";
 import type { SchoolResponse, BranchFilters } from "../types";
+import { StatPill } from "../components/SchoolCommon";
+import { StatusBadge, PageToggleButton, ConfirmModal } from "@/core/components/ui";
 import BranchesListPage from "./BranchesListPage";
-import { StatPill, StatusBadge, ConfirmDialog } from "../components/SchoolCommon";
 
 // ---------------------------------------------------------------------------
 // Zod schemas — mirror backend Pydantic models exactly
@@ -205,6 +206,7 @@ const SchoolDetailPage: React.FC = () => {
     });
 
     const branchFilters: BranchFilters = { page: 1, page_size: 100 };
+
     const { data: branchData } = useQuery({
         queryKey: ["branches", parsedSchoolId],
         queryFn: () => getBranches(parsedSchoolId, branchFilters),
@@ -300,18 +302,11 @@ const SchoolDetailPage: React.FC = () => {
 
                 {/* Deactivate / Activate school — SUPER_ADMIN only */}
                 {canEditSchool && (
-                    <button
-                        type="button"
+                    <PageToggleButton
+                        isActive={displaySchool.is_active}
+                        label={displaySchool.is_active ? "Deactivate School" : "Activate School"}
                         onClick={() => setConfirmSchool(true)}
-                        className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
-                            displaySchool.is_active
-                                ? "border-red-100 text-red-500 hover:border-red-300 hover:bg-red-50"
-                                : "border-green-100 text-green-600 hover:border-green-300 hover:bg-green-50"
-                        }`}
-                    >
-                        <PowerOff size={15} strokeWidth={2.5} />
-                        {displaySchool.is_active ? "Deactivate School" : "Activate School"}
-                    </button>
+                    />
                 )}
             </div>
 
@@ -344,20 +339,6 @@ const SchoolDetailPage: React.FC = () => {
             />
             */}
             {/* ── Confirm: toggle school status ─────────── */}
-            {confirmSchool && (
-                <ConfirmDialog
-                    title={displaySchool.is_active ? "Deactivate School" : "Activate School"}
-                    message={
-                        displaySchool.is_active
-                            ? `Deactivating "${displaySchool.school_name}" will mark it inactive. All associated data remains intact.`
-                            : `Reactivating "${displaySchool.school_name}" will restore it as an active school.`
-                    }
-                    confirmLabel={displaySchool.is_active ? "Deactivate" : "Activate"}
-                    danger={displaySchool.is_active}
-                    onConfirm={() => toggleSchoolMutation.mutate(parsedSchoolId)}
-                    onCancel={() => setConfirmSchool(false)}
-                />
-            )}
 
             
         </div>

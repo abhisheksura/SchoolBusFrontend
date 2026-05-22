@@ -2,24 +2,22 @@
 
 import React from "react";
 import type { BranchResponse } from "../types";
-
+import { StatusBadge, CardEditButton, ToggleActiveButton } from "@/core/components/ui";
 import {
     Building2,
     MapPin,
     Phone,
     Mail,
-    Pencil,
-    PowerOff,
 } from "lucide-react";
 
-interface BranchCardProps {
+export interface BranchCardProps {
     branch: BranchResponse;
     canEdit: boolean;
     onEdit: (branch: BranchResponse) => void;
     onDeactivate: (branch: BranchResponse) => void;
 }
 
-const BranchCard: React.FC<BranchCardProps> = ({
+export const BranchCard: React.FC<BranchCardProps> = ({
     branch,
     canEdit,
     onEdit,
@@ -60,30 +58,8 @@ const BranchCard: React.FC<BranchCardProps> = ({
                 </div>
 
                 {/* Status */}
-                <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        branch.is_active
-                            ? "bg-green-50 text-green-600"
-                            : "bg-slate-100 text-slate-400"
-                    }`}
-                >
-                    <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                            branch.is_active
-                                ? "bg-green-500"
-                                : "bg-slate-400"
-                        }`}
-                    />
-
-                    {branch.is_active ? "Active" : "Inactive"}
-                </span>
+                <StatusBadge active={branch.is_active} />
             </div>
-
-            {/* ---------------------------------------------------------------- */}
-            {/* Highlight Box */}
-            {/* ---------------------------------------------------------------- */}
-
-      
 
             {/* ---------------------------------------------------------------- */}
             {/* Details */}
@@ -143,37 +119,13 @@ const BranchCard: React.FC<BranchCardProps> = ({
             {canEdit && (
                 <div className="mt-auto flex items-center gap-px border-t border-slate-100">
                     {/* Edit */}
-                    <button
-                        type="button"
-                        onClick={() => onEdit(branch)}
-                        className="
-                            flex flex-1 items-center justify-center gap-1.5
-                            py-3 text-xs font-medium text-slate-500
-                            transition-colors
-                            hover:bg-slate-50 hover:text-slate-700
-                        "
-                    >
-                        <Pencil size={13} />
-                        Edit
-                    </button>
-
+                    <CardEditButton onClick={() => onEdit(branch)} />
                     {/* Divider */}
                     <div className="h-6 w-px bg-slate-100" />
-
-                    {/* Activate / Deactivate */}
-                    <button
-                        type="button"
+                    {/* Activate / Deactive */}
+                    <ToggleActiveButton isActive={branch.is_active}
                         onClick={() => onDeactivate(branch)}
-                        className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors ${
-                            branch.is_active
-                                ? "text-slate-400 hover:bg-red-50 hover:text-red-500"
-                                : "text-slate-400 hover:bg-green-50 hover:text-green-600"
-                        }`}
-                    >
-                        <PowerOff size={13} />
-
-                        {branch.is_active ? "Deactivate" : "Activate"}
-                    </button>
+                    />
                 </div>
             )}
         </div>
