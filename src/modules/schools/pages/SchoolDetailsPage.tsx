@@ -339,8 +339,6 @@ const SchoolDetailPage: React.FC = () => {
             />
             */}
             {/* ── Confirm: toggle school status ─────────── */}
-
-            
         </div>
     );
 };

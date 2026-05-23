@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import BranchCard from "../components/BranchCard";
 import { BranchForm } from "../components/BranchForm";
 import type { BranchFormData } from "../components/BranchForm";
-import { ConfirmDialog } from "../components/SchoolCommon";
+import { ConfirmModal } from "@/core/components/ui/Modal";
 import type { BranchResponse } from "../types";
 import { getBranches, createBranch, updateBranch, deleteBranch } from "../api";
 
@@ -310,7 +310,7 @@ const BranchesListPage: React.FC = () => {
 
             {/* ── Confirm: toggle branch status ───────── */}
             {confirmBranch && (
-                <ConfirmDialog
+                <ConfirmModal
                     title={confirmBranch.is_active ? "Deactivate Branch" : "Activate Branch"}
                     message={
                         confirmBranch.is_active
