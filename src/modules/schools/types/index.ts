@@ -58,6 +58,7 @@ export interface BranchUpdateRequest {
     branch_email?: string | null;
     // school_id NOT included — immutable
     // branch_id NOT included — immutable
+    is_active?: boolean;
 }
 
 // ==================== School with Branches ====================

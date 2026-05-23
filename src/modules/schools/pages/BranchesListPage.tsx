@@ -158,7 +158,9 @@ const BranchesListPage: React.FC = () => {
 
     const toggleBranchMutation = useMutation({
         mutationFn: (branch: BranchResponse) =>
-            deleteBranch(parsedSchoolId, branch.branch_id),
+            updateBranch(parsedSchoolId, branch.branch_id, {
+            is_active: !branch.is_active,
+        }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["branches", parsedSchoolId] });
             toast.success("Branch status updated successfully");
@@ -311,6 +313,7 @@ const BranchesListPage: React.FC = () => {
             {/* ── Confirm: toggle branch status ───────── */}
             {confirmBranch && (
                 <ConfirmModal
+                    open={!!confirmBranch}
                     title={confirmBranch.is_active ? "Deactivate Branch" : "Activate Branch"}
                     message={
                         confirmBranch.is_active
