@@ -8,3 +8,5 @@
 export { StatusBadge } from './Badge';
 export { SubmitButton, CancelButton, AddButton, EditButton, CardEditButton, ToggleActiveButton, PageToggleButton } from './Button';
 export { Modal, ConfirmModal } from './Modal';
+export { SearchFilterBar } from "./search/SearchFilterBar";
+export { StatsGrid } from "./stat/StatGrid";
