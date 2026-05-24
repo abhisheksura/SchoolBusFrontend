@@ -1,87 +1,139 @@
-// src/modules/drivers/api/index.ts
+// src/modules/users/api/index.ts
+// All HTTP calls for the Driver domain.
+//
+// Endpoint contract (mirrors backend):
+//   GET    /drivers                  — paginated list (tenant-scoped)
+//   GET    /drivers/:id              — single driver (basic)
+//   GET    /drivers/:id/details      — driver + current_trip + stats
+//   POST   /drivers                  — create (school_id + branch_id in body)
+//   PUT    /drivers/:id              — update
+//   DELETE /drivers/:id              — soft-delete (is_active = false)
 
-import api from '../../../core/api/client';
-import type { PaginatedResponse } from '../../../core/types/pagination';
+import apiClient from "@/core/api/client";
+import type { PaginatedResponse } from "@/core/types/pagination";
 import type {
-    Driver,
+    DriverResponse,
+    DriverWithDetails,
     DriverCreateRequest,
     DriverUpdateRequest,
     DriverFilters,
-    DriverWithDetails,
-} from '../types';
+} from "../types";
+
+// ---------------------------------------------------------------------------
+// List
+// ---------------------------------------------------------------------------
 
 /**
- * Get paginated list of drivers with tenant filtering
- * - SUPER_ADMIN: sees all drivers
- * - SCHOOL_ADMIN: sees drivers in their school (all branches)
- * - BRANCH_ADMIN: sees drivers in their branch only
+ * Fetch a paginated, tenant-scoped list of drivers.
+ *
+ * Role filtering behaviour (enforced server-side):
+ *   - SUPER_ADMIN  → all drivers across all schools
+ *   - SCHOOL_ADMIN → drivers within their school (all branches)
+ *   - BRANCH_ADMIN → drivers within their branch only
+ *
+ * @param filters - Pagination, search, and tenant scope params.
+ * @returns Paginated list of Driver records.
  */
-export const getDrivers = async (filters?: DriverFilters): Promise<PaginatedResponse<Driver>> => {
-    const response = await api.get<PaginatedResponse<Driver>>('/drivers', { 
-        params: filters 
-    });
-    return response.data;
-};
+export async function getDrivers(
+    filters?: DriverFilters,
+): Promise<PaginatedResponse<DriverResponse>> {
+    const { data } = await apiClient.get<PaginatedResponse<DriverResponse>>(
+        "/drivers/",
+        { params: filters },
+    );
+    return data;
+}
+
+// ---------------------------------------------------------------------------
+// Single — lightweight (list card data only)
+// ---------------------------------------------------------------------------
 
 /**
- * Get single driver by ID
+ * Fetch a single driver by ID (basic fields, no relations).
+ * Use this when you only need to confirm existence before a mutation.
+ *
+ * @param driverId - The driver's primary key.
+ * @returns Driver record without relational data.
  */
-export const getDriver = async (driverId: number): Promise<DriverWithDetails> => {
-    const response = await api.get<DriverWithDetails>(`/drivers/${driverId}`);
-    return response.data;
-};
+export async function getDriver(driverId: number): Promise<DriverResponse> {
+    const { data } = await apiClient.get<DriverResponse>(`/drivers/${driverId}`);
+    return data;
+}
+
+// ---------------------------------------------------------------------------
+// Single — detailed (with current_trip + stats)
+// ---------------------------------------------------------------------------
 
 /**
- * Create new driver
- * Requires school_id and branch_id in request
+ * Fetch a driver together with their current trip assignment and
+ * lifetime statistics. Used by the detail slide-over panel.
+ *
+ * @param driverId - The driver's primary key.
+ * @returns DriverWithDetails enriched with relational data.
  */
-export const createDriver = async (data: DriverCreateRequest): Promise<Driver> => {
-    const response = await api.post<Driver>('/drivers', data);
-    return response.data;
-};
-
-/**
- * Update driver
- */
-export const updateDriver = async (
+export async function getDriverWithDetails(
     driverId: number,
-    data: DriverUpdateRequest
-): Promise<Driver> => {
-    const response = await api.put<Driver>(`/drivers/${driverId}`, data);
-    return response.data;
-};
+): Promise<DriverWithDetails> {
+    const { data } = await apiClient.get<DriverWithDetails>(
+        `/drivers/${driverId}/details`,
+    );
+    return data;
+}
+
+// ---------------------------------------------------------------------------
+// Create
+// ---------------------------------------------------------------------------
 
 /**
- * Soft delete driver (set is_active = false)
+ * Create a new driver record.
+ * The request body MUST include school_id and branch_id for multi-tenancy.
+ *
+ * @param payload - Driver creation payload including tenant scope.
+ * @returns The newly created Driver record.
  */
-export const deleteDriver = async (driverId: number): Promise<void> => {
-    await api.delete(`/drivers/${driverId}`);
-};
+export async function createDriver(
+    payload: DriverCreateRequest,
+): Promise<DriverResponse> {
+    const { data } = await apiClient.post<DriverResponse>("/drivers", payload);
+    return data;
+}
+
+// ---------------------------------------------------------------------------
+// Update
+// ---------------------------------------------------------------------------
 
 /**
- * Get available drivers for assignment
- * Returns drivers that are active and not currently assigned to a trip
+ * Update mutable fields on an existing driver.
+ * school_id and branch_id are intentionally excluded from the payload
+ * (immutable after creation — enforced by the backend).
+ *
+ * @param driverId - The driver's primary key.
+ * @param payload  - Partial update payload.
+ * @returns The updated Driver record.
  */
-export const getAvailableDrivers = async (filters?: {
-    school_id?: number;
-    branch_id?: number;
-    date?: string;
-}): Promise<Driver[]> => {
-    const response = await api.get<Driver[]>('/drivers/available', { 
-        params: filters 
-    });
-    return response.data;
-};
+export async function updateDriver(
+    driverId: number,
+    payload: DriverUpdateRequest,
+): Promise<DriverResponse> {
+    const { data } = await apiClient.patch<DriverResponse>(
+        `/drivers/${driverId}`,
+        payload,
+    );
+    return data;
+}
+
+// ---------------------------------------------------------------------------
+// Deactivate (soft delete)
+// ---------------------------------------------------------------------------
 
 /**
- * Get driver statistics
+ * Soft-delete a driver by setting is_active = false.
+ * The record is never hard-deleted — it can be restored via updateDriver.
+ *
+ * @param driverId - The driver's primary key.
+ * @returns The deactivated Driver record (is_active will be false).
  */
-export const getDriverStats = async (driverId: number): Promise<{
-    total_trips: number;
-    completed_trips: number;
-    cancelled_trips: number;
-    average_rating: number;
-}> => {
-    const response = await api.get(`/drivers/${driverId}/statistics`);
-    return response.data;
-};
+export async function deactivateDriver(driverId: number): Promise<DriverResponse> {
+    const { data } = await apiClient.delete<DriverResponse>(`/drivers/${driverId}`);
+    return data;
+}
