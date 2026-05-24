@@ -266,20 +266,6 @@ const SchoolDetailPage: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-5 max-w-7xl mx-auto">
-            {/* ── Back + breadcrumb ─────────────────────── */}
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-                <button
-                    type="button"
-                    onClick={() => navigate("/schools")}
-                    className="inline-flex items-center gap-1.5 font-medium hover:text-slate-700 transition-colors"
-                >
-                    <ArrowLeft size={14} strokeWidth={2.5} />
-                    Schools
-                </button>
-                <ChevronRight size={14} />
-                <span className="font-semibold text-slate-700">{displaySchool.school_name}</span>
-            </div>
-
             {/* ── Page header ───────────────────────────── */}
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">

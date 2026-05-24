@@ -247,7 +247,13 @@ const SchoolsListPage: React.FC = () => {
                         <SchoolCard
                             key={school.school_id}
                             school={school}
-                            onClick={() => navigate(`/schools/${school.school_id}`)}
+                            onClick={() => navigate(
+                                `/schools/${school.school_id}`, {
+                                    state: {
+                                        breadcrumbLabel: school.school_name,
+                                    },
+                                }
+                            )}
                         />
                     ))}
                 </div>

@@ -4,7 +4,7 @@
 // Right: notification bell + user menu
 
 import React from "react";
-import { Menu } from "lucide-react";
+import { Menu, ChevronLeft } from "lucide-react";
 import NavBreadcrumb from "./NavBreadcrumb";
 import NavNotificationBell from "./NavNotificationBell";
 import NavUserMenu from "./NavUserMenu";
@@ -32,8 +32,25 @@ const Navbar: React.FC<NavbarProps> = ({ onMobileMenuOpen }) => {
             </button>
 
             {/* Breadcrumb */}
-            <div className="flex-1 min-w-0">
-                <NavBreadcrumb />
+            <div className="flex-1 min-w-0 flex items-center gap-3">
+
+                {/* Back Button */}
+                <button
+                    type="button"
+                    onClick={() => window.history.back()}
+                    className={[
+                        "hidden sm:flex h-9 w-9 items-center justify-center rounded-lg",
+                        "text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors",
+                    ].join(" ")}
+                    aria-label="Go back"
+                >
+                    <ChevronLeft size={18} strokeWidth={2} />
+                </button>
+
+                {/* Breadcrumb */}
+                <div className="min-w-0">
+                    <NavBreadcrumb />
+                </div>
             </div>
 
             {/* Right actions */}
