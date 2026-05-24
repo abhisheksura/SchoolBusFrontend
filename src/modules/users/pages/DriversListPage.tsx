@@ -138,7 +138,7 @@ const DriversListPage: React.FC = () => {
     // ── Role helpers ─────────────────────────────────────────────────────────
     const isSuperAdmin  = hasRole("SUPER_ADMIN");
     const isSchoolAdmin = hasRole("SCHOOL_ADMIN");
-    const isBranchAdmin = hasRole("BRANCH_ADMIN")
+    const isBranchAdmin = hasRole("BRANCH_ADMIN");
     const canEditDriver = isSuperAdmin || isSchoolAdmin || isBranchAdmin;
 
     // ── Tenant scope from JWT ────────────────────────────────────────────────
