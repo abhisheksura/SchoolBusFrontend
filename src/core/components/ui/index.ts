@@ -10,3 +10,5 @@ export { SubmitButton, CancelButton, AddButton, EditButton, CardEditButton, Togg
 export { Modal, ConfirmModal } from './Modal';
 export { SearchFilterBar } from "./search/SearchFilterBar";
 export { StatsGrid } from "./stat/StatGrid";
+export { FormField } from "@/core/components/ui/form/FormField";
+export { TextInput } from "@/core/components/ui/form/TextInput";
