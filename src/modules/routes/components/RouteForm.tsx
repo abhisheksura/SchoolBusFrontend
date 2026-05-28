@@ -1,11 +1,17 @@
 // src/modules/routes/components/RouteForm.tsx
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import type { Route } from '../types';
+import React, { useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { SubmitButton, CancelButton } from "@/core/components/ui";
+import { TenantSelector } from "@/core/components/tenant/TenantSelectors";
+import { useTenantOptions }             from "@/tenant/hooks/useTenantOptions";
 
-// Zod schema matching backend validation
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
+
 const routeSchema = z.object({
     route_code: z.string()
         .min(1, 'Route code is required')
@@ -20,35 +26,126 @@ const routeSchema = z.object({
 type RouteFormData = z.infer<typeof routeSchema>;
 
 interface RouteFormProps {
-    route?: Route;
-    onSubmit: (data: RouteFormData) => Promise<void>;
+    mode: "create" | "edit";
+
+    initialValues?: Partial<RouteFormData>;
+
+    onSubmit: (data: RouteFormData) => void;
+
     onCancel: () => void;
+
     isLoading?: boolean;
+    tenantScope: any;
+    
+    tenant?: {
+        isEditing: boolean;
+        schoolLabel: string;
+        branchLabel: string;
+
+        schoolOptions: any[];
+        branchOptions: any[];
+
+        tenantScope: any;
+        isFetching: boolean;
+
+        onSchoolChange: (id: number) => void;
+    };
+
 }
 
 export const RouteForm: React.FC<RouteFormProps> = ({
-    route,
+    mode,
+    initialValues,
     onSubmit,
     onCancel,
     isLoading = false,
+    tenantScope,
 }) => {
+
+    // useTenantOptions handles:
+    //   - fetching school/branch option lists for selectors
+    //   - resolving display names for the read-only edit panel
+    //   - all three role modes (editable / school_locked / fully_locked)
+    const tenant = useTenantOptions({
+        // entitySchoolId: stop?.school_id,
+        // entityBranchId: stop?.branch_id,
+    });
+
+    const defaultValues = useMemo<RouteFormData>(() => ({
+            route_code: initialValues?.route_code || '',
+            route_name: initialValues?.route_name || '',
+            is_active: initialValues?.is_active ?? true,
+        }), [initialValues]);
+    // -----------------------------
+    // React Hook Form
+    // -----------------------------
     const {
         register,
         handleSubmit,
+        watch,
+        setValue,
         formState: { errors },
     } = useForm<RouteFormData>({
         resolver: zodResolver(routeSchema),
-        defaultValues: {
-            route_code: route?.route_code || '',
-            route_name: route?.route_name || '',
-            is_active: route?.is_active ?? true,
-        },
+        defaultValues,
     });
 
-    const inputClass = "flex h-12 w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200";
+    const isActiveValue = watch("is_active");
+    // -----------------------------
+    // Submit handler (stable)
+    // -----------------------------
+    const submitHandler = useMemo(
+        () => handleSubmit((data) => onSubmit(data)),
+        [handleSubmit, onSubmit]
+    );
+
+    // -----------------------------
+    // Styles (memoized to avoid re-creation)
+    // -----------------------------
+    const styles = useMemo(() => ({
+        input:
+            "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm " +
+            "text-slate-800 outline-none transition-all duration-150 " +
+            "placeholder:text-slate-400 focus:border-yellow-400",
+
+        inputError:
+            "w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm " +
+            "text-slate-800 outline-none transition-all duration-150 " +
+            "placeholder:text-slate-400 focus:border-red-400",
+
+        label:
+            "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500",
+    }), []);
+
+    // ---------------------------------------------------------------------------
+    // Styles
+    // ---------------------------------------------------------------------------
+ 
+    const inputClass =
+    "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm " +
+    "text-slate-800 outline-none transition-all duration-150 " +
+    "placeholder:text-slate-400 focus:border-yellow-400";
+ 
+    const inputErrorClass =
+    "w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm " +
+    "text-slate-800 outline-none transition-all duration-150 " +
+    "placeholder:text-slate-400 focus:border-red-400";
+
+    const labelClass =
+    "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500";
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={submitHandler} className="space-y-5">
+            <TenantSelector
+                register={register} 
+                setValue={setValue}
+                tenantScope={tenantScope}
+                tenant={tenant}
+                errors={errors}
+                inputClass={inputClass}
+                inputErrorClass={inputErrorClass}
+                labelClass={labelClass}
+            />
             {/* Route Code */}
             <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
@@ -87,49 +184,44 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 )}
             </div>
 
-            {/* Active Status (only show when editing) */}
-            {route && (
-                <div>
-                    <label className="flex items-center gap-2 cursor-pointer">
+            {/* Active toggle */}
+            {mode === "edit" && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <label className="flex items-center gap-3 cursor-pointer">
+
                         <input
-                            {...register('is_active')}
                             type="checkbox"
-                            className="w-4 h-4 rounded border-2 border-input text-primary focus:ring-2 focus:ring-primary"
+                            checked={isActiveValue ?? true}
+                            onChange={(e) =>
+                                setValue("is_active", e.target.checked, {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                })
+                            }
                             disabled={isLoading}
+                            className="h-4 w-4"
                         />
-                        <span className="text-sm font-medium text-foreground">
-                            Active
-                        </span>
+
+                        <div>
+                            <p className="text-sm font-semibold text-slate-700">
+                                Active Route
+                            </p>
+                            <p className="text-xs text-slate-500">
+                                Inactive Route cannot be used in routes
+                            </p>
+                        </div>
+
                     </label>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        Inactive routes cannot be used for new trips
-                    </p>
                 </div>
             )}
 
             {/* Actions */}
-            <div className="flex gap-3 pt-4">
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex-1 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-all duration-200"
-                >
-                    {isLoading && (
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    )}
-                    {route ? 'Update Route' : 'Create Route'}
-                </button>
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    disabled={isLoading}
-                    className="inline-flex items-center justify-center rounded-xl border-2 border-border bg-background px-4 py-2.5 text-base font-semibold hover:bg-accent hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-all duration-200"
-                >
-                    Cancel
-                </button>
+            <div className="flex items-center gap-3 pt-2">
+                <SubmitButton
+                    label={mode === "edit" ? "Update Route" : "Add Route"}
+                    isLoading={isLoading}
+                />
+                <CancelButton onClick={onCancel} disabled={isLoading} />
             </div>
         </form>
     );
