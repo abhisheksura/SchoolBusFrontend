@@ -90,20 +90,19 @@ const StopsListPage: React.FC = () => {
     const inactiveCount = allStops.filter((s) => !s.is_active).length;
 
     const stops = allStops.filter((s) => {
-    const matchesSearch = debouncedSearch
-        ? s.stop_name.toLowerCase().includes(debouncedSearch.toLowerCase())
-        : true;
-    const matchesStatus =
-        filterStatus === "inactive" ? !s.is_active :
-        filterStatus === "active"   ?  s.is_active :
-        true;
-    return matchesSearch && matchesStatus;
-});
+        const matchesSearch = debouncedSearch
+            ? s.stop_name.toLowerCase().includes(debouncedSearch.toLowerCase())
+            : true;
+        const matchesStatus =
+            filterStatus === "inactive" ? !s.is_active :
+            filterStatus === "active"   ?  s.is_active :
+            true;
+        return matchesSearch && matchesStatus;
+    });
     // ── Open create — reset formSchoolId for fresh selection ────────────
     // Important: reset to undefined for SUPER_ADMIN so branch options
     // start empty and don't show stale data from a previous selection.
     const handleOpenCreate = () => {
-        console.log("clicked ->"+schoolId);
         setFormSchoolId(isSuperAdmin ? undefined : schoolId);
         stopModal.openCreate();
     };
