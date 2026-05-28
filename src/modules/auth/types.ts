@@ -63,7 +63,9 @@ export interface RoleResponse {
     role_id: number;
     role_name: UserRole;
     school_id: number | null;
+    school_name?: string | null;
     branch_id: number | null;
+    branch_name?: string | null;
     is_active: boolean;
     assigned_at: string;
 }

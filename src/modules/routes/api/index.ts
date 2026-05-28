@@ -1,162 +1,229 @@
 // src/modules/routes/api/index.ts
+// All HTTP calls for the Routes & Stops domain.
+//
+// Endpoint map (mirrors backend router at /api/v1/):
+//
+//   Stops
+//     GET    /stops                       paginated list  (tenant-scoped)
+//     GET    /stops/:id                   single stop
+//     POST   /stops                       create
+//     PUT    /stops/:id                   update
+//     DELETE /stops/:id                   soft-delete → returns updated Stop
+//
+//   Routes
+//     GET    /routes                      paginated list
+//     GET    /routes/:id                  single route (no stops)
+//     GET    /routes/:id/stops            route + ordered pickup/dropoff stops
+//     POST   /routes                      create
+//     PUT    /routes/:id                  update
+//     DELETE /routes/:id                  soft-delete → returns updated Route
+//
+//   Route-Stop membership
+//     GET    /route-stops?route_id=:id    stops for a route
+//     POST   /route-stops                 add stop to route
+//     PUT    /route-stops/:id             update sequence
+//     DELETE /route-stops/:id             remove stop from route
+//     POST   /routes/:id/reorder-stops    bulk reorder
 
-import api from '@/core/api/client';
-import type { PaginatedResponse, PaginationParams } from '../../../core/types/pagination';
+import apiClient from "@/core/api/client";
+import type { PaginatedResponse } from "@/core/types/pagination";
 import type {
-    Route,
-    RouteCreateRequest,
-    RouteUpdateRequest,
-    Stop,
+    StopResponse,
     StopCreateRequest,
     StopUpdateRequest,
+    StopFilters,
+    RouteResponse,
+    RouteWithStops,
+    RouteCreateRequest,
+    RouteUpdateRequest,
+    RouteFilters,
     RouteStop,
     RouteStopCreateRequest,
     RouteStopUpdateRequest,
-    RouteWithStops,
-} from '../types';
+    RouteStopReorderRequest,
+} from "../types";
 
-// ==================== Routes API ====================
+// ===========================================================================
+// Stops
+// ===========================================================================
 
 /**
- * Get paginated list of routes
+ * Fetch a paginated, tenant-scoped list of stops.
+ *
+ * Role behaviour (enforced server-side):
+ *   SUPER_ADMIN  → all stops
+ *   SCHOOL_ADMIN → stops within their school
+ *   BRANCH_ADMIN → stops within their branch only
  */
-export const getRoutes = async (params?: PaginationParams): Promise<PaginatedResponse<Route>> => {
-    const response = await api.get<PaginatedResponse<Route>>('/routes', { params });
-    return response.data;
+export const getStops = async (
+    filters?: StopFilters,
+): Promise<PaginatedResponse<StopResponse>> => {
+    const { data } = await apiClient.get<PaginatedResponse<StopResponse>>(
+        "/stops/",
+        { params: filters },
+    );
+    return data;
+};
+
+/** Fetch a single stop by primary key. */
+export const getStop = async (stopId: number): Promise<StopResponse> => {
+    const { data } = await apiClient.get<StopResponse>(`/stops/${stopId}`);
+    return data;
 };
 
 /**
- * Get single route by ID
+ * Create a new stop.
+ * school_id and branch_id are required for multi-tenancy.
  */
-export const getRoute = async (routeId: number): Promise<Route> => {
-    const response = await api.get<Route>(`/routes/${routeId}`);
-    return response.data;
+export const createStop = async (
+    payload: StopCreateRequest,
+): Promise<StopResponse> => {
+    const { data } = await apiClient.post<StopResponse>("/stops", payload);
+    return data;
 };
 
 /**
- * Get route with all stops (pickup and dropoff)
+ * Update mutable fields on a stop.
+ * school_id / branch_id excluded — immutable after creation.
  */
-export const getRouteWithStops = async (routeId: number): Promise<RouteWithStops> => {
-    const response = await api.get<RouteWithStops>(`/routes/${routeId}/stops`);
-    return response.data;
+export const updateStop = async (
+    stopId : number,
+    payload: StopUpdateRequest,
+): Promise<StopResponse> => {
+    console.log("Payload");
+    console.log(payload);
+    const { data } = await apiClient.patch<StopResponse>(`/stops/${stopId}`, payload);
+    return data;
 };
 
 /**
- * Create new route
+ * Soft-delete a stop (sets is_active = false).
+ * Returns the updated Stop record.
  */
-export const createRoute = async (data: RouteCreateRequest): Promise<Route> => {
-    const response = await api.post<Route>('/routes', data);
-    return response.data;
+export const deactivateStop = async (stopId: number): Promise<StopResponse> => {
+    const { data } = await apiClient.delete<StopResponse>(`/stops/${stopId}`);
+    return data;
+};
+
+// ===========================================================================
+// Routes
+// ===========================================================================
+
+/**
+ * Fetch a paginated, tenant-scoped list of routes.
+ *
+ * Role behaviour (enforced server-side):
+ *   SUPER_ADMIN  → all routes
+ *   SCHOOL_ADMIN → routes within their school
+ *   BRANCH_ADMIN → routes within their branch only
+ */
+export const getRoutes = async (
+    filters?: RouteFilters,
+): Promise<PaginatedResponse<RouteResponse>> => {
+    const { data } = await apiClient.get<PaginatedResponse<RouteResponse>>(
+        "/routes",
+        { params: filters },
+    );
+    return data;
+};
+
+/** Fetch a single route by primary key (no stop data). */
+export const getRoute = async (routeId: number): Promise<RouteResponse> => {
+    const { data } = await apiClient.get<RouteResponse>(`/routes/${routeId}`);
+    return data;
 };
 
 /**
- * Update route
+ * Fetch a route with its ordered pickup + dropoff stop lists.
+ * Used by the Stops modal. Lists are pre-sorted by stop_sequence.
+ */
+export const getRouteWithStops = async (
+    routeId: number,
+): Promise<RouteWithStops> => {
+    const { data } = await apiClient.get<RouteWithStops>(
+        `/routes/${routeId}/stops`,
+    );
+    return data;
+};
+
+/**
+ * Create a new route.
+ * school_id and branch_id are required for multi-tenancy.
+ */
+export const createRoute = async (
+    payload: RouteCreateRequest,
+): Promise<RouteResponse> => {
+    const { data } = await apiClient.post<RouteResponse>("/routes", payload);
+    return data;
+};
+
+/**
+ * Update mutable fields on an existing route.
+ * school_id / branch_id excluded — immutable after creation.
  */
 export const updateRoute = async (
     routeId: number,
-    data: RouteUpdateRequest
-): Promise<Route> => {
-    const response = await api.put<Route>(`/routes/${routeId}`, data);
-    return response.data;
+    payload: RouteUpdateRequest,
+): Promise<RouteResponse> => {
+    const { data } = await apiClient.put<RouteResponse>(`/routes/${routeId}`, payload);
+    return data;
 };
 
 /**
- * Soft delete route
+ * Soft-delete a route (sets is_active = false).
+ * Returns the updated Route record.
  */
-export const deleteRoute = async (routeId: number): Promise<void> => {
-    await api.delete(`/routes/${routeId}`);
+export const deactivateRoute = async (routeId: number): Promise<RouteResponse> => {
+    const { data } = await apiClient.delete<RouteResponse>(`/routes/${routeId}`);
+    return data;
 };
 
-// ==================== Stops API ====================
+// ===========================================================================
+// Route-Stop membership
+// ===========================================================================
 
 /**
- * Get paginated list of stops
+ * Add a stop to a route at a specific sequence position.
+ * The caller must compute a non-conflicting stop_sequence
+ * (e.g. max existing sequence + 1).
  */
-export const getStops = async (params?: PaginationParams): Promise<PaginatedResponse<Stop>> => {
-    const response = await api.get<PaginatedResponse<Stop>>('/stops', { params });
-    return response.data;
+export const addStopToRoute = async (
+    payload: RouteStopCreateRequest,
+): Promise<RouteStop> => {
+    const { data } = await apiClient.post<RouteStop>("/route-stops", payload);
+    return data;
 };
 
 /**
- * Get single stop by ID
- */
-export const getStop = async (stopId: number): Promise<Stop> => {
-    const response = await api.get<Stop>(`/stops/${stopId}`);
-    return response.data;
-};
-
-/**
- * Create new stop
- */
-export const createStop = async (data: StopCreateRequest): Promise<Stop> => {
-    const response = await api.post<Stop>('/stops', data);
-    return response.data;
-};
-
-/**
- * Update stop
- */
-export const updateStop = async (
-    stopId: number,
-    data: StopUpdateRequest
-): Promise<Stop> => {
-    const response = await api.put<Stop>(`/stops/${stopId}`, data);
-    return response.data;
-};
-
-/**
- * Soft delete stop
- */
-export const deleteStop = async (stopId: number): Promise<void> => {
-    await api.delete(`/stops/${stopId}`);
-};
-
-// ==================== Route Stops API ====================
-
-/**
- * Get all stops for a route (grouped by type)
- */
-export const getRouteStops = async (routeId: number): Promise<RouteStop[]> => {
-    const response = await api.get<RouteStop[]>(`/routes/${routeId}/route-stops`);
-    return response.data;
-};
-
-/**
- * Add stop to route
- */
-export const addStopToRoute = async (data: RouteStopCreateRequest): Promise<RouteStop> => {
-    const response = await api.post<RouteStop>('/route-stops', data);
-    return response.data;
-};
-
-/**
- * Update route stop (mainly for reordering)
+ * Update the sequence number of a stop within a route.
+ * Prefer reorderRouteStops() for bulk reordering.
  */
 export const updateRouteStop = async (
     routeStopId: number,
-    data: RouteStopUpdateRequest
+    payload    : RouteStopUpdateRequest,
 ): Promise<RouteStop> => {
-    const response = await api.put<RouteStop>(`/route-stops/${routeStopId}`, data);
-    return response.data;
+    const { data } = await apiClient.put<RouteStop>(
+        `/route-stops/${routeStopId}`,
+        payload,
+    );
+    return data;
 };
 
 /**
- * Remove stop from route
+ * Remove a stop from a route entirely.
+ * The underlying Stop record is unaffected — only membership is deleted.
  */
 export const removeStopFromRoute = async (routeStopId: number): Promise<void> => {
-    await api.delete(`/route-stops/${routeStopId}`);
+    await apiClient.delete(`/route-stops/${routeStopId}`);
 };
 
 /**
- * Bulk reorder stops for a route
+ * Bulk-reorder all stops of a given type on a route.
+ * Backend assigns stop_sequence = 1, 2, 3 … in the submitted order.
  */
 export const reorderRouteStops = async (
     routeId: number,
-    stopType: 'PICKUP' | 'DROPOFF',
-    stopIds: number[]
+    payload: RouteStopReorderRequest,
 ): Promise<void> => {
-    await api.post(`/routes/${routeId}/reorder-stops`, {
-        stop_type: stopType,
-        stop_ids: stopIds,
-    });
+    await apiClient.post(`/routes/${routeId}/reorder-stops`, payload);
 };
