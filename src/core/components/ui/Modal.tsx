@@ -45,7 +45,7 @@ interface ModalProps {
     subtitle?: string;
     onClose:   () => void;
     children:  React.ReactNode;
-    size?:     "md" | "lg";
+    size?: "sm" | "md" | "lg" | "xl";
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -58,8 +58,14 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
     if (!open) return null;
 
-    const maxWidth = size === "md" ? "max-w-md" : "max-w-lg";
+    const sizeMap = {
+        sm: "max-w-sm",
+        md: "max-w-md",
+        lg: "max-w-lg",
+        xl: "max-w-2xl",
+    };
 
+    const maxWidth = sizeMap[size];
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"

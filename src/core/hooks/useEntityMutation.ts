@@ -1,4 +1,4 @@
-// src/core/hooks/useEntityCrud.ts
+// src/core/hooks/useEntityMutation.ts
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ interface UpdatePayload<T, TData> {
     data: TData;
 }
 
-interface UseEntityCrudOptions<T, TCreate, TUpdate> {
+interface UseEntityMutationOptions<T, TCreate, TUpdate> {
     entityName: string;
 
     queryKey: string[];
@@ -20,8 +20,7 @@ interface UseEntityCrudOptions<T, TCreate, TUpdate> {
         data: TUpdate
     ) => Promise<any>;
 
-    toggleFn: (entity: T) => Promise<any>;
-
+    toggleFn: (id: number) => Promise<any>;
     getEntityId: (entity: T) => number;
 
     onCreateSuccess?: () => void;
@@ -29,7 +28,7 @@ interface UseEntityCrudOptions<T, TCreate, TUpdate> {
     onToggleSuccess?: () => void;
 }
 
-export function useEntityCrud<
+export function useEntityMutation<
     T,
     TCreate,
     TUpdate = TCreate
@@ -46,7 +45,7 @@ export function useEntityCrud<
     onCreateSuccess,
     onUpdateSuccess,
     onToggleSuccess,
-}: UseEntityCrudOptions<
+}: UseEntityMutationOptions<
     T,
     TCreate,
     TUpdate
@@ -121,7 +120,8 @@ export function useEntityCrud<
     // ─────────────────────────────────────────
 
     const toggleMutation = useMutation({
-        mutationFn: toggleFn,
+        mutationFn: (entity: T) =>
+            toggleFn(getEntityId(entity)),
 
         onSuccess: () => {
             invalidate();

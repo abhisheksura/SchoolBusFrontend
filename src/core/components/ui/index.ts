@@ -12,3 +12,4 @@ export { SearchFilterBar } from "./search/SearchFilterBar";
 export { StatsGrid } from "./stat/StatGrid";
 export { FormField } from "@/core/components/ui/form/FormField";
 export { TextInput } from "@/core/components/ui/form/TextInput";
+export { EntityModal } from "@/core/components/ui/EntityModal";

@@ -1,44 +1,87 @@
 // src/core/hooks/useEntityModal.ts
 
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-export interface EntityModalState<T> {
-    isOpen: boolean;
-    editingItem: T | null;
+// -----------------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------------
+
+export type EntityModalMode = "create" | "edit";
+
+interface EntityModalState<T> {
+    open: boolean;
+    mode: EntityModalMode;
+    item: T | null;
 }
+
+// -----------------------------------------------------------------------------
+// Hook
+// -----------------------------------------------------------------------------
 
 export function useEntityModal<T>() {
     const [state, setState] = useState<EntityModalState<T>>({
-        isOpen: false,
-        editingItem: null,
+        open: false,
+        mode: "create",
+        item: null,
     });
+
+    // -------------------------------------------------------------------------
+    // Open Create
+    // -------------------------------------------------------------------------
 
     const openCreate = useCallback(() => {
         setState({
-            isOpen: true,
-            editingItem: null,
+            open: true,
+            mode: "create",
+            item: null,
         });
     }, []);
+
+    // -------------------------------------------------------------------------
+    // Open Edit
+    // -------------------------------------------------------------------------
 
     const openEdit = useCallback((item: T) => {
         setState({
-            isOpen: true,
-            editingItem: item,
+            open: true,
+            mode: "edit",
+            item,
         });
     }, []);
+
+    // -------------------------------------------------------------------------
+    // Close
+    // -------------------------------------------------------------------------
 
     const close = useCallback(() => {
-        setState({
-            isOpen: false,
-            editingItem: null,
-        });
+        setState((prev) => ({
+            ...prev,
+            open: false,
+        }));
     }, []);
 
-    return {
-        ...state,
-        openCreate,
-        openEdit,
-        close,
-        isEditing: !!state.editingItem,
-    };
+    // -------------------------------------------------------------------------
+    // Derived State
+    // -------------------------------------------------------------------------
+
+    const isCreate = state.mode === "create";
+    const isEdit = state.mode === "edit";
+
+    // -------------------------------------------------------------------------
+    // Return
+    // -------------------------------------------------------------------------
+
+    return useMemo(
+        () => ({
+            ...state,
+
+            openCreate,
+            openEdit,
+            close,
+
+            isCreate,
+            isEdit,
+        }),
+        [state, openCreate, openEdit, close, isCreate, isEdit]
+    );
 }
