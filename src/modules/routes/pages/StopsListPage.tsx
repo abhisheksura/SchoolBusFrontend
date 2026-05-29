@@ -11,7 +11,7 @@ import { usePagination }  from "@/core/hooks/usePagination";
 import { useDebounce }    from "@/core/hooks/useDebounce";
 
 import { StatsGrid }                from "@/core/components/ui";
-import { SearchFilterBar }          from "@/core/components/ui";
+import { SearchFilterBar, ConfirmModal }          from "@/core/components/ui";
 import { EntityFormModal }          from "@/core/components/modals/EntityFormModal";
 import { EntityStatusConfirmModal } from "@/core/components/modals/EntityStatusConfirmModal";
 
@@ -85,7 +85,8 @@ const StopsListPage: React.FC = () => {
     });
  
     const allStops      = data?.items ?? [];
-    const total         = data?.total  ?? 0;
+    const totalPages    = data?.pages ?? 1;
+    const total         = data?.total ?? 0;
     const activeCount   = allStops.filter((s) =>  s.is_active).length;
     const inactiveCount = allStops.filter((s) => !s.is_active).length;
 
@@ -107,7 +108,7 @@ const StopsListPage: React.FC = () => {
         stopModal.openCreate();
     };
 
-    const { createMutation, updateMutation, isLoading: isMutating} = useEntityMutation<
+    const { createMutation, updateMutation, toggleMutation, isLoading: isMutating} = useEntityMutation<
         StopResponse,
         StopCreateRequest,
         StopUpdateRequest
@@ -235,6 +236,7 @@ const StopsListPage: React.FC = () => {
             >
                 <StopForm
                     mode={stopModal.mode}
+                    stop={stopModal.item ?? undefined}
                     initialValues={
                         stopModal.item
                             ? {
@@ -242,6 +244,8 @@ const StopsListPage: React.FC = () => {
                                 latitude: stopModal.item.latitude,
                                 longitude: stopModal.item.longitude,
                                 is_active: stopModal.item.is_active,
+                                school_id: stopModal.item.school_id,
+                                branch_id: stopModal.item.branch_id,
                             }
                             : undefined
                     }
@@ -251,6 +255,49 @@ const StopsListPage: React.FC = () => {
                     tenantScope={tenantScope}
                 />
             </EntityModal>
+            {/* ── Confirm: toggle branch status ───────── */}
+            {confirmStop && (
+                <ConfirmModal
+                    open={!!confirmStop}
+                    title={confirmStop.is_active ? "Deactivate Stop" : "Activate Stop"}
+                    message={
+                        confirmStop.is_active
+                            ? `Deactivating "${confirmStop.stop_name}" will mark it inactive.`
+                            : `Reactivating "${confirmStop.stop_name}" will restore it as an active branch.`
+                    }
+                    confirmLabel={confirmStop.is_active ? "Deactivate" : "Activate"}
+                    danger={confirmStop.is_active}
+                    isLoading={toggleMutation.isPending}
+                    onConfirm={() => toggleMutation.mutate(confirmStop)}
+                    onCancel={() => setConfirmStop(null)}
+                />
+            )}
+            {/* ── Pagination ───────────────────────────────────────────── */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-3.5">
+                    <p className="text-xs text-slate-400">
+                        Page {page} of {totalPages} · {total} drivers
+                    </p>
+                    <div className="flex gap-1.5">
+                        <button
+                            type="button"
+                            onClick={() => setPage(page - 1)}
+                            disabled={page <= 1}
+                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPage(page + 1)}
+                            disabled={page >= totalPages}
+                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

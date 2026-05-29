@@ -5,8 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SubmitButton, CancelButton } from "@/core/components/ui";
+import type { StopResponse } from "../types";
 import { TenantSelector } from "@/core/components/tenant/TenantSelectors";
 import { useTenantOptions }             from "@/tenant/hooks/useTenantOptions";
+import { TenantReadOnly } from "@/core/components/tenant/TenantReadOnly";
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -26,6 +28,8 @@ const stopSchema = z.object({
         .max(180, "Longitude must be ≤ 180"),
 
     is_active: z.boolean().optional(),
+    school_id : z.number().optional(),
+    branch_id : z.number().optional(),
 });
 export type StopFormData = z.infer<typeof stopSchema>;
 
@@ -35,7 +39,15 @@ export type StopFormData = z.infer<typeof stopSchema>;
 
 interface StopFormProps {
     mode: "create" | "edit";
+    /**
+    * Pass the FULL StopResponse when editing.
+    * Used for:
+    *   • pre-filling all form fields (via `values` prop — reactive)
+    *   • showing the read-only tenant panel (school_name, branch_name)
+    * Pass undefined in create mode.
+    */
 
+    stop         ?: StopResponse;
     initialValues?: Partial<StopFormData>;
 
     onSubmit: (data: StopFormData) => void;
@@ -67,12 +79,16 @@ interface StopFormProps {
 
 export const StopForm: React.FC<StopFormProps> = ({
     mode,
+    stop,
     initialValues,
     onSubmit,
     onCancel,
     isLoading = false,
     tenantScope,
 }) => {
+
+    const isEdit = mode === "edit";
+    const isCreate = mode === "create";
 
     // useTenantOptions handles:
     //   - fetching school/branch option lists for selectors
@@ -91,6 +107,9 @@ export const StopForm: React.FC<StopFormProps> = ({
         latitude: initialValues?.latitude ?? 17.385,
         longitude: initialValues?.longitude ?? 78.4867,
         is_active: initialValues?.is_active ?? true,
+        // Important for edit mode (especially with TenantReadOnly)
+        school_id: initialValues?.school_id,
+        branch_id: initialValues?.branch_id,
     }), [initialValues]);
 
     // -----------------------------
@@ -138,37 +157,44 @@ export const StopForm: React.FC<StopFormProps> = ({
     // const showTenantSelectors = tenant && !tenant.isEditing;
 
     // ---------------------------------------------------------------------------
-    // Styles
-    // ---------------------------------------------------------------------------
- 
-    const inputClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm " +
-    "text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-yellow-400";
- 
-    const inputErrorClass =
-    "w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 text-sm " +
-    "text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-red-400";
-
-    const labelClass =
-    "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500";
-    // ---------------------------------------------------------------------------
     // UI
     // ---------------------------------------------------------------------------
 
     return (
         <form onSubmit={submitHandler} className="space-y-5">
-            <TenantSelector
-                register={register} 
-                setValue={setValue}
-                tenantScope={tenantScope}
-                tenant={tenant}
-                errors={errors}
-                inputClass={inputClass}
-                inputErrorClass={inputErrorClass}
-                labelClass={labelClass}
-            />
+            {isEdit ? (
+                <>
+                <TenantReadOnly
+                        schoolName={
+                            stop?.school_name
+                                ?? (stop?.school_id ? `School #${stop.school_id}` : "—")
+                        }
+                        branchName={
+                            stop?.branch_name
+                                ?? (stop?.branch_id ? `Branch #${stop.branch_id}` : "—")
+                        }
+                    />
+                    <input
+                        type="hidden"
+                        {...register("school_id", { valueAsNumber: true })}
+                    />
+                    <input
+                        type="hidden"
+                        {...register("branch_id", { valueAsNumber: true })}
+                    />
+                </>
+            ) : (
+                <TenantSelector
+                    register={register}
+                    setValue={setValue}
+                    tenantScope={tenantScope}
+                    tenant={tenant}
+                    errors={errors}
+                    inputClass={styles.input}
+                    inputErrorClass={styles.inputError}
+                    labelClass={styles.label}
+                />
+            )}
             {/* Stop Name */}
             <div>
                 <label className={styles.label}>
