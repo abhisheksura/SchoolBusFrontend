@@ -1,4 +1,4 @@
-// core/hooks/useAuth.ts
+// src/core/hooks/useAuth.ts
 // Thin convenience hook over useAuthStore.
 // Use this in components — reserve direct useAuthStore usage for
 // non-component code (interceptors, route guards).

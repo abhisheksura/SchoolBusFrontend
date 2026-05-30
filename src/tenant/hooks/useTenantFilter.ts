@@ -1,6 +1,6 @@
 // src/core/hooks/useTenantFilter.ts
 
-import { useAuth } from './useAuth';
+import { useAuth } from '../../features/auth/hooks/useAuth';
 
 /**
  * Hook to get tenant-specific filters based on user role

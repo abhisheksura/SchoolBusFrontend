@@ -1,4 +1,4 @@
-// core/hooks/usePagination.ts
+// src/core/hooks/usePagination.ts
 // Manages page/pageSize state for server-side paginated tables.
 // Resets to page 1 whenever filters change.
 //
@@ -6,7 +6,7 @@
 //   const { page, pageSize, setPage, setPageSize, resetPage } = usePagination();
 
 import { useState, useCallback } from "react";
-import { PAGE_SIZE } from "@/core/config/env";
+import { PAGE_SIZE } from "@/core";
 
 interface UsePaginationReturn {
     page: number;

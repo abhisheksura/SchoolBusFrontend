@@ -1,4 +1,4 @@
-// core/hooks/useDebounce.ts
+// src/core/hooks/useDebounce.ts
 // Delays updating a value until the user has stopped changing it.
 // Useful for search inputs to avoid firing an API call on every keystroke.
 //
