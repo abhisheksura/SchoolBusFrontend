@@ -11,7 +11,7 @@ import {
     PowerOff,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/core/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getBuses, createBus, updateBus, deactivateBus } from "../api";
 import { getBranches, getSchools } from "@/modules/schools/api";
 import { formatDate } from "@/core/utils/formatters";

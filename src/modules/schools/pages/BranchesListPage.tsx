@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "@/core/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDebounce } from "@/core/hooks/useDebounce";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, X } from "lucide-react";

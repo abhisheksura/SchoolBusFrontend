@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/core/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDebounce } from "@/core/hooks/useDebounce";
 import { usePagination } from "@/core/hooks/usePagination";
 import { formatDate, formatPhone } from "@/core/utils/formatters";

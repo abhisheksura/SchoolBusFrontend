@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAuth } from "@/core/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { usePagination } from "@/core/hooks/usePagination";
 import { useDebounce } from "@/core/hooks/useDebounce";
 

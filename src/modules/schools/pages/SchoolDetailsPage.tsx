@@ -10,7 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Pencil, X, Check, Loader2, PowerOff, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/core/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

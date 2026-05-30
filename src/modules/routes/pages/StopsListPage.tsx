@@ -1,12 +1,12 @@
 // src/modules/routes/pages/StopsListPage.tsx
 
 import React, { useState } from "react";
-import { useAuth }        from "@/core/hooks/useAuth";
+import { useAuth }        from "@/features/auth/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 
 import { Plus } from "lucide-react";
 import { EntityModal } from "@/core/components/ui";
-import { useEntityModal } from "@/core/hooks/useEntityModal";
+import { useEntityModal, useEntityMutation } from "@/components/entity";
 import { usePagination }  from "@/core/hooks/usePagination";
 import { useDebounce }    from "@/core/hooks/useDebounce";
 
@@ -22,7 +22,6 @@ import type {
 } from "../types";
 import { StopCard }          from "../components/StopCard";
 import { StopForm } from "../components/StopForm";
-import { useEntityMutation } from "@/core/hooks/useEntityMutation";
 import {
     getStops,
     createStop,

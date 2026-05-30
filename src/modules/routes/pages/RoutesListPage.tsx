@@ -1,11 +1,11 @@
 // src/modules/routes/pages/RoutesListPage
 
 import React, { useState } from "react";
-import { useAuth }        from "@/core/hooks/useAuth";
+import { useAuth }        from "@/features/auth/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { EntityModal } from "@/core/components/ui";
-import { useEntityModal } from "@/core/hooks/useEntityModal";
+import { useEntityModal, useEntityMutation } from "@/components/entity";
 import { StatsGrid } from "@/core/components/ui";
 import type {
     RouteResponse,
@@ -24,8 +24,6 @@ import { useDebounce }    from "@/core/hooks/useDebounce";
 import { RouteCard }          from "../components/RouteCard";
 import { RouteForm } from "../components/RouteForm";
 import { useTenantScope } from "@/tenant/hooks/useTenantScope";
-import { useEntityMutation } from "@/core/hooks/useEntityMutation";
-
 
 type FilterStatus = "all" | "active" | "inactive";
 
