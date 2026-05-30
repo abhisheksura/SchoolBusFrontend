@@ -8,7 +8,7 @@ interface StatPillProps {
     color?: StatPillColor;
 }
 
-const StatPill: React.FC<StatPillProps> = ({
+export const StatPill: React.FC<StatPillProps> = ({
     value,
     label,
     color = "default",
@@ -35,5 +35,3 @@ const StatPill: React.FC<StatPillProps> = ({
         </div>
     );
 };
-
-export default StatPill;

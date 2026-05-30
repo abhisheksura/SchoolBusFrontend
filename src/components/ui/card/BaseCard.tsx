@@ -9,7 +9,7 @@ interface BaseCardProps {
     clickable?: boolean;
 }
 
-const BaseCard: React.FC<BaseCardProps> = ({
+export const BaseCard: React.FC<BaseCardProps> = ({
     children,
     className = "",
     onClick,
@@ -35,5 +35,3 @@ const BaseCard: React.FC<BaseCardProps> = ({
         </div>
     );
 };
-
-export default BaseCard;
