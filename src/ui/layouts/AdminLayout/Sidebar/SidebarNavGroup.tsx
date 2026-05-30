@@ -4,7 +4,7 @@
 
 import React from "react";
 import SidebarNavItem from "./SidebarNavItem";
-import type { RouteConfig } from "@/core/types/routes";
+import type { RouteConfig } from "@/app/routes";
 
 interface SidebarNavGroupProps {
     label: string;
