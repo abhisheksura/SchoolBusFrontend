@@ -8,7 +8,7 @@ interface UpdatePayload<T, TData> {
     data: TData;
 }
 
-interface UseEntityMutationOptions<T, TCreate, TUpdate> {
+export interface UseEntityMutationOptions<T, TCreate, TUpdate> {
     entityName: string;
 
     queryKey: string[];

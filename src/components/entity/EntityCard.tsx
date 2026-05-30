@@ -1,7 +1,7 @@
 import React from "react";
-import BaseCard from "@/components/ui/card/BaseCard";
-import CardHeader from "@/components/ui/card/CardHeader";
-import CardFooter from "@/components/ui/card/CardFooter";
+import { BaseCard } from "@/components/";
+import { CardHeader } from "@/components/";
+import { CardFooter } from "@/components/";
 
 interface EntityCardProps {
     icon?: React.ReactNode;
@@ -14,7 +14,7 @@ interface EntityCardProps {
     className?: string;
 }
 
-const EntityCard: React.FC<EntityCardProps> = ({
+export const EntityCard: React.FC<EntityCardProps> = ({
     icon,
     title,
     subtitle,
@@ -43,5 +43,3 @@ const EntityCard: React.FC<EntityCardProps> = ({
         </BaseCard>
     );
 };
-
-export default EntityCard;
