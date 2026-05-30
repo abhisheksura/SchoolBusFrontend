@@ -25,7 +25,7 @@
 //     DELETE /route-stops/:id             remove stop from route
 //     POST   /routes/:id/reorder-stops    bulk reorder
 
-import apiClient from "@/core/api/client";
+import { apiClient } from "@/core";
 import type { PaginatedResponse } from "@/core/types/pagination";
 import type {
     StopResponse,

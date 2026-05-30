@@ -1,6 +1,6 @@
 // src/modules/schools/api/index.ts
 
-import api from '../../../core/api/client';
+import { apiClient } from "@/core";
 import type { PaginatedResponse, PaginationParams } from '../../../core/types/pagination';
 import type {
     SchoolResponse, 
@@ -21,7 +21,7 @@ import type {
  * SCHOOL_ADMIN: sees only their school
  */
 export const getSchools = async (params?: PaginationParams): Promise<PaginatedResponse<SchoolResponse>> => {
-    const response = await api.get<PaginatedResponse<SchoolResponse>>('/schools/', { params });
+    const response = await apiClient.get<PaginatedResponse<SchoolResponse>>('/schools/', { params });
     return response.data;
 };
 
@@ -29,7 +29,7 @@ export const getSchools = async (params?: PaginationParams): Promise<PaginatedRe
  * Get single school by ID
  */
 export const getSchool = async (schoolId: number): Promise<SchoolResponse> => {
-    const response = await api.get<SchoolResponse>(`/schools/${schoolId}/`);
+    const response = await apiClient.get<SchoolResponse>(`/schools/${schoolId}/`);
     return response.data;
 };
 
@@ -39,14 +39,14 @@ export const getSchool = async (schoolId: number): Promise<SchoolResponse> => {
 export const getSchoolWithDetails = async (
     schoolId: number
 ): Promise<SchoolWithBranches> => {
-    const response = await api.get<SchoolWithBranches>(`/schools/${schoolId}/details`);
+    const response = await apiClient.get<SchoolWithBranches>(`/schools/${schoolId}/details`);
     return response.data;
 };
 /**
  * Create new school (SUPER_ADMIN only)
  */
 export const createSchool = async (data: SchoolCreateRequest): Promise<SchoolResponse> => {
-    const response = await api.post<SchoolResponse>('/schools/', data);
+    const response = await apiClient.post<SchoolResponse>('/schools/', data);
     return response.data;
 };
 
@@ -57,7 +57,7 @@ export const updateSchool = async (
     schoolId: number, 
     data: SchoolUpdateRequest
 ): Promise<SchoolResponse> => {
-    const response = await api.patch<SchoolResponse>(`/schools/${schoolId}/`, data);
+    const response = await apiClient.patch<SchoolResponse>(`/schools/${schoolId}/`, data);
     return response.data;
 };
 
@@ -65,7 +65,7 @@ export const updateSchool = async (
  * Soft delete school (SUPER_ADMIN only)
  */
 export const deleteSchool = async (schoolId: number): Promise<void> => {
-    await api.delete(`/schools/${schoolId}`);
+    await apiClient.delete(`/schools/${schoolId}`);
 };
 
 // ==================== Branches API ====================
@@ -75,7 +75,7 @@ export const deleteSchool = async (schoolId: number): Promise<void> => {
  * Can filter by school_id
  */
 export const getBranches = async (schoolId: number, params?: PaginationParams): Promise<PaginatedResponse<BranchResponse>> => {
-    const response = await api.get<
+    const response = await apiClient.get<
         PaginatedResponse<BranchResponse>
     >(`/schools/${schoolId}/branches/`, {
         params,
@@ -87,7 +87,7 @@ export const getBranches = async (schoolId: number, params?: PaginationParams): 
  * Get single branch by ID
  */
 export const getBranch = async (branchId: number): Promise<BranchResponse> => {
-    const response = await api.get<BranchResponse>(`/branches/${branchId}/`);
+    const response = await apiClient.get<BranchResponse>(`/branches/${branchId}/`);
     return response.data;
 };
 
@@ -98,7 +98,7 @@ export const createBranch = async (
     schoolId: number,
     data: BranchCreateRequest
 ): Promise<BranchResponse> => {
-    const response = await api.post<BranchResponse>(
+    const response = await apiClient.post<BranchResponse>(
         `/schools/${schoolId}/`,
         data
     );
@@ -113,7 +113,7 @@ export const updateBranch = async (
     branchId: number,
     data: BranchUpdateRequest
 ): Promise<BranchResponse> => {
-    const response = await api.patch<BranchResponse>(
+    const response = await apiClient.patch<BranchResponse>(
         `/schools/${schoolId}/branches/${branchId}/`,
         data
     );
@@ -124,5 +124,5 @@ export const updateBranch = async (
  * Soft delete branch
  */
 export const deleteBranch = async (schoolId: number, branchId: number): Promise<void> => {
-    await api.delete(`/schools/${schoolId}/branches/${branchId}/`);
+    await apiClient.delete(`/schools/${schoolId}/branches/${branchId}/`);
 };

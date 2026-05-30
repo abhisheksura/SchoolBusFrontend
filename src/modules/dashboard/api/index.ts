@@ -1,6 +1,6 @@
 // modules/dashboard/api/index.ts
 
-import apiClient from "@/core/api/client";
+import { apiClient } from "@/core";
 import type { DashboardStats, TripSummary, RecentNotification } from "../types";
 import type { PaginatedResponse } from "@/core/types/pagination";
 

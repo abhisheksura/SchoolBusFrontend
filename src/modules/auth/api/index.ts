@@ -1,7 +1,7 @@
 // modules/auth/api/index.ts
 // All HTTP calls for the auth module.
 
-import apiClient from "@/core/api/client";
+import { apiClient } from "@/core";
 import type { LoginRequest, TokenResponse, MeResponse } from "../types";
 
 /** POST /api/v1/auth/login */

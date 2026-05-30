@@ -17,7 +17,7 @@ import { refreshTokenApi } from "@/modules/auth/api";
 // Instance
 // ---------------------------------------------------------------------------
 
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1",
     timeout: 15_000,
     headers: {
@@ -84,5 +84,3 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-export default apiClient;

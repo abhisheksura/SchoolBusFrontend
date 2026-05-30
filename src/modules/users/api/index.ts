@@ -8,8 +8,7 @@
 //   POST   /drivers                  — create (school_id + branch_id in body)
 //   PUT    /drivers/:id              — update
 //   DELETE /drivers/:id              — soft-delete (is_active = false)
-
-import apiClient from "@/core/api/client";
+import { apiClient } from "@/core";
 import type { PaginatedResponse } from "@/core/types/pagination";
 import type {
     DriverResponse,

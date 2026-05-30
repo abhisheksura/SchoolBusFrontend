@@ -7,7 +7,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/core/api/client";
+import { apiClient } from "@/core";
 import type { PaginatedResponse } from "@/core/types/pagination";
 
 interface NotificationItem {
