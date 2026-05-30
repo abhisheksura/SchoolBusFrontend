@@ -1,7 +1,7 @@
 import React from "react";
-import BaseCard from "@/core/components/ui/card/BaseCard";
-import CardHeader from "@/core/components/ui/card/CardHeader";
-import CardFooter from "@/core/components/ui/card/CardFooter";
+import BaseCard from "@/components/ui/card/BaseCard";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardFooter from "@/components/ui/card/CardFooter";
 
 interface EntityCardProps {
     icon?: React.ReactNode;

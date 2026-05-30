@@ -1,6 +1,6 @@
 // src/core/components/ui/EntityModal.tsx
 import React from "react";
-import { Modal } from "./Modal";
+import { Modal } from "../ui/Modal";
 import type { EntityModalMode } from "@/components/entity/hooks/useEntityModal";
 
 // -----------------------------------------------------------------------------

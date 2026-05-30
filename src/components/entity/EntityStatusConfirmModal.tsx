@@ -1,6 +1,6 @@
 // src/core/components/modals/EntityStatusConfirmModal.tsx
 
-import { ConfirmModal } from "../ui/Modal";
+import { ConfirmModal } from "../../../components/ui/Modal";
 
 interface Props<T extends { is_active: boolean }> {
     open: boolean;
