@@ -16,7 +16,7 @@ import { routeRoutes }        from "@/modules/routes/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
 import { notificationRoutes } from "@/modules/notifications/routes";
 */
-import type { RouteConfig, SidebarGroup } from "@/core/types/routes";
+import type { RouteConfig, SidebarGroup } from "./types";
 
 // ---------------------------------------------------------------------------
 // All protected routes — order here doesn't matter; sidebar uses `order`
