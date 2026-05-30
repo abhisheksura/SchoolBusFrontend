@@ -11,8 +11,7 @@ import { usePagination }  from "@/core/hooks/usePagination";
 import { useDebounce }    from "@/core/hooks/useDebounce";
 
 import { StatsGrid }                from "@/core/components/ui";
-import { SearchFilterBar, ConfirmModal }          from "@/core/components/ui";
-import { EntityFormModal }          from "@/core/components/modals/EntityFormModal";
+import { SearchFilterBar }          from "@/core/components/ui";
 import { EntityStatusConfirmModal } from "@/core/components/modals/EntityStatusConfirmModal";
 
 
@@ -223,6 +222,33 @@ const StopsListPage: React.FC = () => {
                     ))}
                 </div>
             )}
+
+            {/* ── Pagination ───────────────────────────────────────────── */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-3.5">
+                    <p className="text-xs text-slate-400">
+                        Page {page} of {totalPages} · {total} drivers
+                    </p>
+                    <div className="flex gap-1.5">
+                        <button
+                            type="button"
+                            onClick={() => setPage(page - 1)}
+                            disabled={page <= 1}
+                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPage(page + 1)}
+                            disabled={page >= totalPages}
+                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
             {/* ── Create / Edit modal ──────────────────────────────────── */}
 
             <EntityModal
@@ -256,48 +282,15 @@ const StopsListPage: React.FC = () => {
                 />
             </EntityModal>
             {/* ── Confirm: toggle branch status ───────── */}
-            {confirmStop && (
-                <ConfirmModal
-                    open={!!confirmStop}
-                    title={confirmStop.is_active ? "Deactivate Stop" : "Activate Stop"}
-                    message={
-                        confirmStop.is_active
-                            ? `Deactivating "${confirmStop.stop_name}" will mark it inactive.`
-                            : `Reactivating "${confirmStop.stop_name}" will restore it as an active branch.`
-                    }
-                    confirmLabel={confirmStop.is_active ? "Deactivate" : "Activate"}
-                    danger={confirmStop.is_active}
-                    isLoading={toggleMutation.isPending}
-                    onConfirm={() => toggleMutation.mutate(confirmStop)}
-                    onCancel={() => setConfirmStop(null)}
-                />
-            )}
-            {/* ── Pagination ───────────────────────────────────────────── */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-3.5">
-                    <p className="text-xs text-slate-400">
-                        Page {page} of {totalPages} · {total} drivers
-                    </p>
-                    <div className="flex gap-1.5">
-                        <button
-                            type="button"
-                            onClick={() => setPage(page - 1)}
-                            disabled={page <= 1}
-                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        >
-                            Previous
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPage(page + 1)}
-                            disabled={page >= totalPages}
-                            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
-            )}
+            <EntityStatusConfirmModal
+                open={!!confirmStop}
+                entity={confirmStop}
+                entityName="Stop"
+                entityLabel={confirmStop?.stop_name ?? ""}
+                isLoading={toggleMutation.isPending}
+                onConfirm={() => confirmStop && toggleMutation.mutate(confirmStop)}
+                onCancel={() => setConfirmStop(null)}
+            />
         </div>
     );
 };
