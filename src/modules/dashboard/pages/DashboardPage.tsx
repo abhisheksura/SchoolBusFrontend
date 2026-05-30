@@ -22,7 +22,7 @@ import {
     TRIP_STATUS_COLORS,
     TRIP_STATUS_LABELS,
     TRIP_TYPE_LABELS,
-} from "@/core/utils/constants";
+} from "@/features/trips";
 
 // ---------------------------------------------------------------------------
 // Stat card
