@@ -18,7 +18,6 @@ export interface PaginationParams {
 }
 */
 
-
 export interface PaginationParams {
     page?: number;
     page_size?: number;
@@ -26,4 +25,12 @@ export interface PaginationParams {
     school_id?: number;
     branch_id?: number;
     active_only?: boolean;
+}
+
+// ==================== Common Types ====================
+export type SortDirection = 'asc' | 'desc';
+
+export interface SortParams {
+    sort_by?: string;
+    sort_direction?: SortDirection;
 }

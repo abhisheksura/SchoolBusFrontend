@@ -1,5 +1,10 @@
 // src/modules/schools/types/index.ts
-
+export interface TenantInfo {
+    school_id  : number;
+    school_name: string;
+    branch_id  : number;
+    branch_name: string;
+}
 // ==================== School Types ====================
 export interface SchoolResponse {
     school_id: number;
