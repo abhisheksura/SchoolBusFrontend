@@ -13,7 +13,7 @@ import AuthGuard     from "@/core/guards/AuthGuard";
 import RoleGuard     from "@/core/guards/RoleGuard";
 import LoginPage     from "@/modules/auth/pages/LoginPage";
 import UnauthorizedPage from "@/ui/components/UnauthorizedPage";
-import AdminLayout   from "@/ui/layouts/AdminLayout";
+import AdminLayout   from "@/components/layouts/AdminLayout";
 import PageLoader    from "./PageLoader";
 import { allRoutes } from "./routeConfig";
 
