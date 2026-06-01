@@ -4,11 +4,11 @@ import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitButton, CancelButton } from "@/core/components/ui";
+import { SubmitButton, CancelButton } from "@/components";
 import type { StopResponse } from "../types";
-import { TenantSelector } from "@/core/components/tenant/TenantSelectors";
-import { useTenantOptions }             from "@/tenant/hooks/useTenantOptions";
-import { TenantReadOnly } from "@/core/components/tenant/TenantReadOnly";
+import { TenantSelector } from "@/tenant/components/TenantSelectors";
+import { useTenantOptions } from "@/tenant/hooks/useTenantOptions";
+import { TenantReadOnly } from "@/tenant/components/TenantReadOnly";
 
 // ---------------------------------------------------------------------------
 // Schema

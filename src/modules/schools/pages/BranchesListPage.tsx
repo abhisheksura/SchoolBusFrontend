@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import BranchCard from "../components/BranchCard";
 import { BranchForm } from "../components/BranchForm";
 import type { BranchFormData } from "../components/BranchForm";
-import { ConfirmModal } from "@/core/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/Modal";
 import type { BranchResponse } from "../types";
 import { getBranches, createBranch, updateBranch, deleteBranch } from "../api";
 

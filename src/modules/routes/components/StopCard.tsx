@@ -1,17 +1,9 @@
 // src/modules/route/components/StopCard.tsx
 import type { StopResponse } from "../types";
-import BaseCard from "@/core/components/ui/card/BaseCard";
-import EntityCard from "@/shared/components/EntityCard";
-import { CardEditButton, StatusBadge, ToggleActiveButton } from "@/core/components/ui";
+import { EntityCard } from "@/components";
+import { CardEditButton, StatusBadge, ToggleActiveButton } from "@/components";
 import {
-    Plus,
-    UserCog,
-    Search,
-    Phone,
-    CreditCard,
-    MapPin,
-    Building2,
-    Loader2,
+    MapPin
 } from "lucide-react";
 
 export interface StopCardProps {

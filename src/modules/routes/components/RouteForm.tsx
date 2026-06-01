@@ -4,8 +4,8 @@ import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitButton, CancelButton } from "@/core/components/ui";
-import { TenantSelector } from "@/core/components/tenant/TenantSelectors";
+import { SubmitButton, CancelButton } from "@/components/";
+import { TenantSelector } from "@/tenant/components/TenantSelectors";
 import { useTenantOptions }             from "@/tenant/hooks/useTenantOptions";
 
 // ---------------------------------------------------------------------------

@@ -5,22 +5,15 @@ import { useAuth }        from "@/features/auth/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 
 import { Plus } from "lucide-react";
-import { EntityModal } from "@/core/components/ui";
-import { useEntityModal, useEntityMutation } from "@/components/entity";
-import { usePagination }  from "@/core/hooks/usePagination";
-import { useDebounce }    from "@/core/hooks/useDebounce";
-
-import { StatsGrid }                from "@/core/components/ui";
-import { SearchFilterBar }          from "@/core/components/ui";
-import { EntityStatusConfirmModal } from "@/core/components/modals/EntityStatusConfirmModal";
-
-
+import { EntityModal, StatsGrid, SearchFilterBar } from "@/components";
+import { useEntityModal, useEntityMutation, EntityStatusConfirmModal } from "@/components/entity";
+import { useDebounce, usePagination } from "@/core/";
 import type {
     StopResponse,
     StopCreateRequest,
     StopUpdateRequest,
 } from "../types";
-import { StopCard }          from "../components/StopCard";
+import { StopCard } from "../components/StopCard";
 import { StopForm } from "../components/StopForm";
 import {
     getStops,

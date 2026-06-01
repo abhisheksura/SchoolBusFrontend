@@ -1,7 +1,7 @@
 // src/modules/route/components/RouteCard.tsx
 import type { RouteResponse } from "../types";
-import EntityCard from "@/shared/components/EntityCard";
-import { CardEditButton, StatusBadge, ToggleActiveButton } from "@/core/components/ui";
+import { EntityCard } from "@/components";
+import { CardEditButton, StatusBadge, ToggleActiveButton } from "@/components";
 import {
     Route,
     MapPin

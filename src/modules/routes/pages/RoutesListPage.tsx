@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import { useAuth }        from "@/features/auth/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { EntityModal } from "@/core/components/ui";
+import { EntityModal, StatsGrid, SearchFilterBar } from "@/components/";
 import { useEntityModal, useEntityMutation } from "@/components/entity";
-import { StatsGrid } from "@/core/components/ui";
 import type {
     RouteResponse,
     RouteCreateRequest,
@@ -18,10 +17,8 @@ import type {
     updateRoute,
     deactivateRoute,
 } from "../api";
-import { SearchFilterBar }          from "@/core/components/ui";
-import { usePagination }  from "@/core/hooks/usePagination";
-import { useDebounce }    from "@/core/hooks/useDebounce";
-import { RouteCard }          from "../components/RouteCard";
+import { useDebounce, usePagination }  from "@/core";
+import { RouteCard } from "../components/RouteCard";
 import { RouteForm } from "../components/RouteForm";
 import { useTenantScope } from "@/tenant/hooks/useTenantScope";
 
