@@ -19,7 +19,7 @@ import {
     BarChart2,
     type LucideProps,
 } from "lucide-react";
-import type { SidebarIcon as SidebarIconName } from "@/core/types/routes";
+import type { SidebarIcon as SidebarIconName } from "@/app/routes";
 
 const ICON_MAP: Record<SidebarIconName, React.FC<LucideProps>> = {
     LayoutDashboard,

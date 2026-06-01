@@ -21,3 +21,12 @@ export { TextInput } from "./ui/form/TextInput";
 export { SearchFilterBar } from "./ui/search/SearchFilterBar";
 export { StatsGrid } from "./ui/stat/StatGrid";
 export { StatPill } from "./ui/stat/StatPill";
+
+// 🟢 Layer 3: Abstract Organisms (entity) - Handled via local sub-gateway
+export {
+    useEntityModal,
+    useEntityMutation,
+    EntityCard,
+    EntityModal,
+    EntityStatusConfirmModal
+} from "./entity";

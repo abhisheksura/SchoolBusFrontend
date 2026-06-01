@@ -6,7 +6,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import SidebarIcon from "./SidebarIcon";
-import type { RouteConfig } from "@/core/types/routes";
+import type { RouteConfig } from "@/app/routes";
 
 interface SidebarNavItemProps {
     route: RouteConfig;
