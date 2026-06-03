@@ -3,8 +3,8 @@
 // Use this in components — reserve direct useAuthStore usage for
 // non-component code (interceptors, route guards).
 
-import { useAuthStore } from "@/modules/auth/store";
-import { logoutApi } from "@/modules/auth/api";
+import { useAuthStore } from "../store";
+import { logoutApi } from "@/features/auth/api";
 
 export function useAuth() {
     const {

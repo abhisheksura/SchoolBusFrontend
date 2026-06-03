@@ -8,8 +8,8 @@ import { z } from "zod";
 import { Eye, EyeOff, User, Lock, Loader2 } from "lucide-react";
 
 import RoleButton from "./RoleButton";
-import { ADMIN_ROLES } from "../types";
-import type { UserRole, LoginRequest } from "../types";
+import { ADMIN_ROLES } from "@/features/auth/";
+import type { UserRole, LoginRequest } from "@/features/auth/";
 
 // ---------------------------------------------------------------------------
 // Zod schema — mirrors backend LoginRequest (platform injected at submit)

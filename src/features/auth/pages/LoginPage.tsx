@@ -9,10 +9,10 @@ import BrandingCard from "../components/BrandingCard";
 import LoginCard from "../components/LoginCard";
 import LoginForm from "../components/LoginForm";
 
-import { loginApi, getMeApi } from "../api";
+import { loginApi, getMeApi } from "../../../features/auth/api";
 import { useAuthStore } from "../store";
-import { ROLE_LABELS } from "../types";
-import type { LoginRequest } from "../types";
+import { ROLE_LABELS } from "../../../features/auth/types";
+import type { LoginRequest } from "../../../features/auth/types";
 
 // ---------------------------------------------------------------------------
 // Error parser — extracts a readable message from any Axios error

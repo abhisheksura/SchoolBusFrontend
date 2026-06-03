@@ -14,7 +14,7 @@ import {
     AlertCircle,
     Bell,
 } from "lucide-react";
-import { useAuth } from "@/modules/auth/context";
+import { useAuth } from "@/features/auth/context";
 import { getDashboardStats, getTodayTrips, getRecentNotifications } from "../api";
 import type { DashboardStats } from "../types";
 import { formatRelative, formatTime } from "@/core/utils/formatters";

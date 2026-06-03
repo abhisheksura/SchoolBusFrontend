@@ -3,7 +3,7 @@
 // AppRoutes reads this shape to build the route tree and sidebar nav.
 
 import type { ComponentType } from "react";
-import type { UserRole } from "@/modules/auth/types";
+import type { UserRole } from "@/features/auth/";
 
 export interface RouteConfig {
     // ── Router fields ────────────────────────────────────────────────────────

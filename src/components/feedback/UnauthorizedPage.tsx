@@ -4,15 +4,15 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ShieldOff, ArrowLeft } from "lucide-react";
-import { ROLE_LABELS } from "@/modules/auth/types";
-import type { UserRole } from "@/modules/auth/types";
+import { ROLE_LABELS } from "@/features/auth/types";
+import type { UserRole } from "@/features/auth/types";
 
 interface UnauthorizedState {
     from?: { pathname: string };
     requiredRoles?: UserRole[];
 }
 
-const UnauthorizedPage: React.FC = () => {
+export const UnauthorizedPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const state = (location.state ?? {}) as UnauthorizedState;
@@ -64,5 +64,3 @@ const UnauthorizedPage: React.FC = () => {
         </main>
     );
 };
-
-export default UnauthorizedPage;

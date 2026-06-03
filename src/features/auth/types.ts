@@ -1,4 +1,4 @@
-// modules/auth/types.ts
+// /src/features/auth/types.ts
 
 export type UserRole =
     | "SUPER_ADMIN"

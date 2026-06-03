@@ -4,8 +4,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { LogOut, ChevronDown, Loader2 } from "lucide-react";
-import { useAuth } from "@/modules/auth/context";
-import { ROLE_LABELS } from "@/modules/auth/types";
+import { useAuth, ROLE_LABELS } from "@/features/auth";
 
 const NavUserMenu: React.FC = () => {
     const { user, activeRole, logout } = useAuth();

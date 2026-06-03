@@ -4,8 +4,8 @@
 
 import React, { useState } from "react";
 import { LogOut, Loader2 } from "lucide-react";
-import { useAuth } from "@/modules/auth/context";
-import { ROLE_LABELS } from "@/modules/auth/types";
+import { useAuth } from "@/features/auth/context";
+import { ROLE_LABELS } from "@/features/auth/types";
 
 interface SidebarUserCardProps {
     collapsed: boolean;

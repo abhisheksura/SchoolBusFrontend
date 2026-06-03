@@ -12,7 +12,7 @@
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Bus, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAuth } from "@/modules/auth/context";
+import { useAuth } from "@/features/auth/context";
 import { sidebarRoutes, GROUP_META } from "@/app/routes";
 import type { RouteConfig, SidebarGroup } from "@/app/routes";
 import SidebarNavGroup from "./SidebarNavGroup";

@@ -12,9 +12,7 @@
 //   - The React Context layer via AuthContextProvider
 
 import React, { useEffect, useRef, useState, type ReactNode } from "react";
-import { useAuthStore } from "@/modules/auth/store";
-import { refreshTokenApi } from "@/modules/auth/api";
-import { AuthContextProvider } from "@/modules/auth/context";
+import { useAuthStore, refreshTokenApi, AuthContextProvider } from "@/features/auth/";
 
 interface AuthProviderProps {
     children: ReactNode;

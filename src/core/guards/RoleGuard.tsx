@@ -14,8 +14,8 @@
 
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuthStore } from "@/modules/auth/store";
-import type { UserRole } from "@/modules/auth/types";
+import { useAuthStore } from "@/features/auth";
+import type { UserRole } from "@/features/auth";
 
 interface RoleGuardProps {
     roles: UserRole[];

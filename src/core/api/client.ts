@@ -10,8 +10,7 @@ import axios, {
     type AxiosRequestConfig,
     type InternalAxiosRequestConfig,
 } from "axios";
-import { useAuthStore } from "@/modules/auth/store";
-import { refreshTokenApi } from "@/modules/auth/api";
+import { useAuthStore, refreshTokenApi } from "@/features/auth/";
 
 // ---------------------------------------------------------------------------
 // Instance

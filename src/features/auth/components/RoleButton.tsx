@@ -3,8 +3,8 @@
 
 import React from "react";
 import { Shield, Building2, GitBranch } from "lucide-react";
-import type { UserRole } from "../types";
-import { ROLE_LABELS, ROLE_DESCRIPTIONS } from "../types";
+import type { UserRole } from "../../../features/auth/types";
+import { ROLE_LABELS, ROLE_DESCRIPTIONS } from "../../../features/auth/types";
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
     SUPER_ADMIN:  <Shield size={18} strokeWidth={1.75} />,

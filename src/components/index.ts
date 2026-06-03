@@ -30,3 +30,5 @@ export {
     EntityModal,
     EntityStatusConfirmModal
 } from "./entity";
+
+export { UnauthorizedPage } from "./feedback/UnauthorizedPage";

@@ -4,7 +4,7 @@
 // AuthGuard — exported here for completeness and future use.
 
 import { lazy } from "react";
-import type { RouteConfig } from "@/core/types/routes";
+import type { RouteConfig } from "@/app/routes";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 

@@ -11,11 +11,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import AuthGuard     from "@/core/guards/AuthGuard";
 import RoleGuard     from "@/core/guards/RoleGuard";
-import LoginPage     from "@/modules/auth/pages/LoginPage";
-import UnauthorizedPage from "@/ui/components/UnauthorizedPage";
+import LoginPage     from "@/features/auth/pages/LoginPage";
 import AdminLayout   from "@/components/layouts/AdminLayout";
 import PageLoader    from "./PageLoader";
 import { allRoutes } from "./routeConfig";
+import { UnauthorizedPage } from "@/components/";
+
 
 const AppRoutes: React.FC = () => (
     <Suspense fallback={<PageLoader />}>
