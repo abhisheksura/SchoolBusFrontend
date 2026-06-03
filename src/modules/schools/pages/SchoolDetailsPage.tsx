@@ -17,7 +17,7 @@ import { z } from "zod";
 import { getSchool, getBranches, updateSchool, deleteSchool } from "../api";
 import type { SchoolResponse, BranchFilters } from "../types";
 import { StatPill } from "../components/SchoolCommon";
-import { StatusBadge, PageToggleButton, ConfirmModal } from "@/core/components/ui";
+import { StatusBadge, PageToggleButton, ConfirmModal } from "@/components";
 import BranchesListPage from "./BranchesListPage";
 
 // ---------------------------------------------------------------------------

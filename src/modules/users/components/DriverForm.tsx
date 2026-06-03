@@ -12,7 +12,7 @@
 // simply calls onSubmit(values) with the validated form output.
 
 import React from "react";
-import { SubmitButton, CancelButton } from '@/core/components/ui';
+import { SubmitButton, CancelButton } from '@/components';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

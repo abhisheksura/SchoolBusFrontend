@@ -1,6 +1,6 @@
 // src/tenant/hooks/useTenantScope.ts
 
-import { useAuthStore } from "@/modules/auth/store";
+import { useAuthStore } from "@/features/auth";
 
 // ---------------------------------------------------------------------------
 // Types

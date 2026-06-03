@@ -215,8 +215,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, serverError 
             <button
                 type="submit"
                 disabled={isLoading}
-
-bg-yellow-400
                 className={[
                     "flex items-center justify-center gap-2 w-full",
                     "rounded-lg bg-yellow-400 py-2.5 px-5",

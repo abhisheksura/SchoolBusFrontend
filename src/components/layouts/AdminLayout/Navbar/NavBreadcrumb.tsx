@@ -4,7 +4,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
-import { allRoutes } from "@/app/routes";
+import { allRoutes } from "@/app/routes/routeConfig";
 
 // ------------------------------------------------------------------
 // Route segment → label lookup

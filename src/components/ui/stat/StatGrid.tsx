@@ -1,5 +1,5 @@
 import React from "react";
-import StatPill from "./StatPill";
+import { StatPill } from "./StatPill";
 import type { StatPillColor } from "./StatPill";
 
 export interface StatItem {

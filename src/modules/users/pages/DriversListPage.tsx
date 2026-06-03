@@ -37,7 +37,7 @@ import {
     StatusBadge,
     CardEditButton,
     ToggleActiveButton,
-} from "@/core/components/ui";
+} from "@/components/";
 import DriverCard from "../components/DriverCard";
 import DriverForm from "../components/DriverForm";
 import {

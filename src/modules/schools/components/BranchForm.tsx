@@ -1,7 +1,7 @@
 // src/modules/schools/components/BranchForm.tsx
 
 import React from "react";
-import { SubmitButton, CancelButton } from '@/core/components/ui';
+import { SubmitButton, CancelButton } from '@/components';
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";

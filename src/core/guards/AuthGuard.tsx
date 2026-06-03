@@ -9,7 +9,7 @@
 
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuthStore } from "@/modules/auth/store";
+import { useAuthStore } from "@/features/auth";
 
 const AuthGuard: React.FC = () => {
     const { accessToken, user } = useAuthStore();

@@ -26,7 +26,7 @@ export const allRoutes: RouteConfig[] = [
     ...dashboardRoutes,
     ...busRoutes,
     ...userRoutes,
-   ...schoolRoutes,
+    ...schoolRoutes,
     ...routeRoutes,
 
 /*  

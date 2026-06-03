@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { SchoolResponse } from '../types';
-import { SubmitButton, CancelButton } from '@/core/components/ui';
+import { SubmitButton, CancelButton } from '@/components';
 
 import { defaultShouldDehydrateMutation } from '@tanstack/react-query';
 

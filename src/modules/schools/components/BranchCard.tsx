@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { BranchResponse } from "../types";
-import { StatusBadge, CardEditButton, ToggleActiveButton } from "@/core/components/ui";
+import { StatusBadge, CardEditButton, ToggleActiveButton } from "@/components";
 import {
     Building2,
     MapPin,

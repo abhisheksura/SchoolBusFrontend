@@ -6,7 +6,7 @@
 // Currently a skeleton — extend as multi-tenant config API is built out.
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAuthStore } from "@/modules/auth/store";
+import { useAuthStore } from "@/features/auth";
 
 // ---------------------------------------------------------------------------
 // Types
