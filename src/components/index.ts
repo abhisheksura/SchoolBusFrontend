@@ -9,7 +9,7 @@ export {
     PageToggleButton
 } from "./ui/Button";
 export { Modal, ConfirmModal } from "./ui/Modal";
-
+export { EmptyState } from "./ui/EmptyState";
 // Reaching directly into atomic sub-groups
 export { BaseCard } from "./ui/card/BaseCard";
 export { CardFooter } from "./ui/card/CardFooter";

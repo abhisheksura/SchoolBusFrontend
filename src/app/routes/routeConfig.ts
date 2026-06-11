@@ -10,7 +10,7 @@ import { dashboardRoutes }    from "@/modules/dashboard/routes";
 import { busRoutes }          from "@/modules/buses/routes";
 import { userRoutes }         from "@/modules/users/routes";
 import { schoolRoutes }       from "@/modules/schools/routes";
-import { routeRoutes }        from "@/modules/routes/routes";
+import { routeRoutes }        from "@/features/routes/routes";
 
 /*import { trackingRoutes }     from "@/modules/tracking/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
