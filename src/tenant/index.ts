@@ -4,6 +4,7 @@
 export { TenantProvider } from './TenantProvider';
 
 // 2. Export Public Components
+export { TenantGate } from './components/TenantGate';
 export { TenantReadOnly } from './components/TenantReadOnly';
 export { TenantSelector } from './components/TenantSelectors';
 
