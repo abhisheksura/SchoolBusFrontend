@@ -11,6 +11,7 @@ import { busRoutes }          from "@/modules/buses/routes";
 import { userRoutes }         from "@/modules/users/routes";
 import { schoolRoutes }       from "@/modules/schools/routes";
 import { routeRoutes }        from "@/features/routes/routes";
+import { studentRoutes }      from "@/features/students/routes";
 
 /*import { trackingRoutes }     from "@/modules/tracking/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
@@ -28,6 +29,7 @@ export const allRoutes: RouteConfig[] = [
     ...userRoutes,
     ...schoolRoutes,
     ...routeRoutes,
+    ...studentRoutes,
 
 /*  
     ...trackingRoutes,
