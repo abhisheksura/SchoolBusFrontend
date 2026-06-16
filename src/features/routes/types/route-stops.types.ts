@@ -24,6 +24,7 @@ export interface RouteStop {
     route_stop_id  : number;
     route_id       : number;
     stop_id        : number;
+    stop_name      : string;
     school_id      : number;
     branch_id      : number;
     trip_type      : TripType;      // "PICKUP" | "DROPOFF"
