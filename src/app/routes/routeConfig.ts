@@ -12,7 +12,7 @@ import { userRoutes }         from "@/modules/users/routes";
 import { schoolRoutes }       from "@/modules/schools/routes";
 import { routeRoutes }        from "@/features/routes/routes";
 import { studentRoutes }      from "@/features/students/routes";
-
+import { tripRoutes }         from "@/features/trips/routes";
 /*import { trackingRoutes }     from "@/modules/tracking/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
 import { notificationRoutes } from "@/modules/notifications/routes";
@@ -30,7 +30,7 @@ export const allRoutes: RouteConfig[] = [
     ...schoolRoutes,
     ...routeRoutes,
     ...studentRoutes,
-
+    ...tripRoutes
 /*  
     ...trackingRoutes,
     ...attendanceRoutes,

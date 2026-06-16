@@ -8,7 +8,10 @@ export const TRIP_STATUS_LABELS: Record<string, string> = {
     IN_PROGRESS: "In Progress",
     COMPLETED:   "Completed",
     CANCELLED:   "Cancelled",
-};
+} as const;
+
+// Derive TripStatus type ("SCHEDULED" | "IN_PROGRESS" | etc.) from the labels keys
+export type TripStatus = keyof typeof TRIP_STATUS_LABELS;
 
 export const TRIP_STATUS_COLORS: Record<string, string> = {
     SCHEDULED:   "bg-blue-100 text-blue-700",
@@ -24,4 +27,7 @@ export const TRIP_STATUS_COLORS: Record<string, string> = {
 export const TRIP_TYPE_LABELS: Record<string, string> = {
     PICKUP:  "Pick-up",
     DROPOFF: "Drop-off",
-};
+} as const;
+
+// Derive TripType type ("PICKUP" | "DROPOFF") from the labels keys
+export type TripType = keyof typeof TRIP_TYPE_LABELS;
