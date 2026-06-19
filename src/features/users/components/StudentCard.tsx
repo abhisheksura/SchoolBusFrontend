@@ -48,12 +48,12 @@ export interface StudentCardProps {
 // Helpers
 // =============================================================================
 
-/** Build "Grade 5 · Section A" label from nullable fields. */
+/** Build "Grade 5 - Section A" label from nullable fields. */
 function buildGradeLabel(grade: string | null, section: string | null): string {
     const parts: string[] = [];
     if (grade)   parts.push(`Grade ${grade}`);
     if (section) parts.push(`Section ${section}`);
-    return parts.join(" · ") || "No grade assigned";
+    return parts.join(" - ") || "No grade assigned";
 }
 
 /** Derive two uppercase initials from first + last name. */
@@ -81,7 +81,6 @@ export const StudentCard: React.FC<StudentCardProps> = ({
     onToggle,
 }) => {
     const navigate = useNavigate();
-
     const initials   = getInitials(student.first_name, student.last_name);
     const fullName   = [student.first_name, student.last_name]
         .filter(Boolean)
@@ -118,9 +117,11 @@ export const StudentCard: React.FC<StudentCardProps> = ({
                         <p className="text-sm font-bold text-slate-800 leading-tight truncate">
                             {fullName}
                         </p>
-                        <p className="mt-0.5 text-xs text-slate-400">
-                            Student #{student.student_id}
-                        </p>
+                        {student.admission_number && (
+                            <p className="mt-0.5 text-xs text-slate-400">
+                                Adm #{student.admission_number}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -142,20 +143,14 @@ export const StudentCard: React.FC<StudentCardProps> = ({
 
             {/* ── Meta rows ────────────────────────────────────────────── */}
             <div className="flex flex-col gap-1 px-5 pb-4">
-                {student.admission_number && (
-                    <CardMetaRow icon={<Hash size={11} />}>
-                        Adm. {student.admission_number}
-                    </CardMetaRow>
-                )}
-
                 {showSchool && (
                     <>
                         <CardMetaRow icon={<Building2 size={11} />}>
                             {/* school_name not on StudentResponse — show school_id */}
-                            School #{student.school_id}
+                            School: <span>{student.school_name}</span>
                         </CardMetaRow>
                         <CardMetaRow icon={<MapPin size={11} />}>
-                            Branch #{student.branch_id}
+                            Branch: <span>{student.branch_name}</span>
                         </CardMetaRow>
                     </>
                 )}

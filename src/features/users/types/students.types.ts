@@ -5,8 +5,6 @@
 /** Mirrors backend StudentResponse. */
 export interface StudentResponse {
     student_id      : number;
-    school_id       : number;
-    branch_id       : number;
     user_id         : number;
     first_name      : string;
     last_name       : string | null;
@@ -14,6 +12,10 @@ export interface StudentResponse {
     grade           : string | null;
     section         : string | null;
     is_active       : boolean;
+    school_id       : number;
+    school_name     : string;
+    branch_id       : number;
+    branch_name     : string;
     created_at      : string;   // ISO-8601
     updated_at      : string;
 }
