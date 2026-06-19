@@ -28,7 +28,6 @@ export interface StudentResponse {
 export interface StudentCreateRequest {
     school_id       : number;
     branch_id       : number;
-    user_id         : number;
     first_name      : string;
     last_name      ?: string | null;
     admission_number?: string | null;

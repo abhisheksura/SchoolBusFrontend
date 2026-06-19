@@ -9,7 +9,7 @@
 //   grade            — optional, max 20
 //   section          — optional, max 10
 //   is_active        — boolean toggle (edit mode only)
-//   user_id          — required on create, positive integer
+//   user_id          — assigned later during onboarding (not part of form)
 //
 // Always rendered inside <EntityModal />.
 // Calls onSubmit() with validated values — mutation is the caller's concern.
@@ -55,16 +55,6 @@ const studentSchema = z.object({
         .max(10, "Must be 10 characters or fewer")
         .optional()
         .or(z.literal("")),
-
-    /**
-     * user_id is only required when creating a new student.
-     * In edit mode it is immutable and not shown in the form.
-     */
-    user_id: z
-        .number({ error: "User ID must be a number", })
-        .int("Must be an integer")
-        .positive("Must be a positive number")
-        .optional(),
 
     is_active: z.boolean().optional(),
 });
@@ -138,7 +128,6 @@ export const StudentForm: React.FC<StudentFormProps> = ({
             admission_number: student?.admission_number ?? "",
             grade           : student?.grade            ?? "",
             section         : student?.section          ?? "",
-            user_id         : undefined,
             is_active       : student?.is_active        ?? true,
         },
     });
@@ -234,32 +223,6 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                     </p>
                 )}
             </div>
-
-            {/* ── User ID — create mode only ─────────────────────────── */}
-            {!isEdit && (
-                <div>
-                    <label className={LABEL}>
-                        User ID <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        {...register("user_id", { valueAsNumber: true })}
-                        type="number"
-                        min={1}
-                        placeholder="Platform user account ID"
-                        disabled={isLoading}
-                        className={errors.user_id ? INPUT_ERR : INPUT}
-                    />
-                    {errors.user_id ? (
-                        <p className="mt-1 text-xs text-red-500">
-                            {errors.user_id.message}
-                        </p>
-                    ) : (
-                        <p className="mt-1 text-xs text-slate-400">
-                            The student must already have a platform user account.
-                        </p>
-                    )}
-                </div>
-            )}
 
             {/* ── Active toggle — edit mode only ─────────────────────── */}
             {isEdit && (

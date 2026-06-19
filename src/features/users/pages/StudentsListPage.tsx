@@ -182,14 +182,9 @@ const StudentsListPage: React.FC = () => {
                 },
             });
         } else {
-            if (!formData.user_id) {
-                toast.error("User ID is required to create a student.");
-                return;
-            }
             await createMutation.mutateAsync({
                 school_id       : gate.resolvedSchoolId!,
                 branch_id       : gate.resolvedBranchId!,
-                user_id         : formData.user_id,
                 first_name      : formData.first_name,
                 last_name       : formData.last_name       || null,
                 admission_number: formData.admission_number || null,
