@@ -53,6 +53,7 @@ export type SidebarIcon =
     | "Navigation"
     | "ClipboardList"
     | "Bell"
+    | "Link"
     | "Cpu"
     | "UserCog"
     | "BarChart2";
