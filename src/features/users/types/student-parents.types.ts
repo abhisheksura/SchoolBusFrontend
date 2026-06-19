@@ -3,7 +3,7 @@
 // Student-Parent Link
 // =============================================================================
 
-import type { ParentResponse } from "./parents.type";
+import type { ParentResponse } from "../../users/types/parents.type";
 
 /** Mirrors backend StudentParentResponse. */
 export interface StudentParentResponse {
