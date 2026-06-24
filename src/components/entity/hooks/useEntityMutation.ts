@@ -20,7 +20,7 @@ export interface UseEntityMutationOptions<T, TCreate, TUpdate> {
         data: TUpdate
     ) => Promise<any>;
 
-    toggleFn: (id: number) => Promise<any>;
+    toggleFn: (entity: T) => Promise<any>;
     getEntityId: (entity: T) => number;
 
     onCreateSuccess?: () => void;
@@ -121,7 +121,7 @@ export function useEntityMutation<
 
     const toggleMutation = useMutation({
         mutationFn: (entity: T) =>
-            toggleFn(getEntityId(entity)),
+            toggleFn(entity),
 
         onSuccess: () => {
             invalidate();
@@ -143,7 +143,8 @@ export function useEntityMutation<
 
     const isLoading =
         createMutation.isPending ||
-        updateMutation.isPending;
+        updateMutation.isPending ||
+        toggleMutation.isPending;
 
     return {
         createMutation,

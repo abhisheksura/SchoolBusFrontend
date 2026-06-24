@@ -1,5 +1,13 @@
 
 export {
+    getDrivers,
+    createDriver,
+    updateDriver,
+    deactivateDriver,
+    reactivateDriver
+} from "./drivers.api"
+
+export {
     getStudents,
     getStudent,
     createStudent,
