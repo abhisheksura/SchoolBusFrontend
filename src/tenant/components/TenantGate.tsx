@@ -19,7 +19,7 @@
 //   ```
 
 import React from "react";
-import { Building2, GitBranch, Lock } from "lucide-react";
+import { Building2, Lock } from "lucide-react";
 import type { TenantGateState } from "../hooks/useTenantGate";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ const SchoolSelector: React.FC<SchoolSelectorProps> = ({
             className={SELECT_CLASS}
         >
             <option value="">
-                {isLoading ? "Loading schools…" : "Select a school"}
+                {isLoading ? "Loading Schools…" : "Select School"}
             </option>
             {options.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -153,10 +153,10 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
 }) => {
     // Contextual placeholder guides the user step-by-step
     const placeholder =
-        isSuperAdmin && !schoolResolved ? "Select a school first"
-        : isLoading                     ? "Loading branches…"
-        : options.length === 0          ? "No branches available"
-        : "Select a branch";
+        isSuperAdmin && !schoolResolved ? "Select School first"
+        : isLoading                     ? "Loading Branches…"
+        : options.length === 0          ? "No Branches available"
+        : "Select Branch";
 
     return (
         <div className="flex flex-col gap-1.5">
@@ -181,7 +181,7 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
             {/* Hint only shown for SUPER_ADMIN before school is picked */}
             {isSuperAdmin && !schoolResolved && (
                 <p className="text-[11px] text-slate-400">
-                    Pick a school above to load its branches.
+                    Pick a School above to load its branches.
                 </p>
             )}
         </div>
@@ -235,7 +235,7 @@ export const TenantGate: React.FC<TenantGateProps> = ({ gate, className = "" }) 
             {/* ── Header ────────────────────────────────────────────────── */}
             <div className="flex items-center gap-2.5">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-500">
-                    <GitBranch size={14} strokeWidth={2.5} className="text-white" />
+                    <Building2 size={14} strokeWidth={2.5} className="text-white" />
                 </div>
                 <div>
                     <p className="text-sm font-semibold text-slate-800">
@@ -243,8 +243,8 @@ export const TenantGate: React.FC<TenantGateProps> = ({ gate, className = "" }) 
                     </p>
                     <p className="text-xs text-slate-500">
                         {gate.isSuperAdmin
-                            ? "Choose a school and branch to view data"
-                            : "Choose a branch to view data"
+                            ? "Choose a School and Branch to view data"
+                            : "Choose a Branch to view data"
                         }
                     </p>
                 </div>
@@ -271,7 +271,7 @@ export const TenantGate: React.FC<TenantGateProps> = ({ gate, className = "" }) 
                             gate.lockedSchoolName ??
                             `School #${gate.resolvedSchoolId}`
                         }
-                        title="Your school is determined by your account role and cannot be changed."
+                        title="Your School is determined by your account role and cannot be changed."
                     />
                 )}
 

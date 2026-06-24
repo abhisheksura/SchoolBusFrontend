@@ -13,3 +13,5 @@ export { useTenantFeatures } from './hooks/useTenantFeatures';
 export { useTenantFilter } from './hooks/useTenantFilter';
 export { useTenantOptions } from './hooks/useTenantOptions';
 export { useTenantScope } from './hooks/useTenantScope';
+
+export type { TenantScopeRequest } from './tenant.types';

@@ -14,7 +14,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ active }) => (
     <span
         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
             active
-                ? "bg-green-100 text-green-500"
+                ? "bg-green-50 text-green-600"
                 : "bg-red-100 text-slate-400"
         }`}
     >
