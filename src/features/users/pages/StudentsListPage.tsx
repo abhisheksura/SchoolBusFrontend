@@ -328,7 +328,7 @@ const StudentsListPage: React.FC = () => {
                                 debouncedSearch
                                     ? "Try a different name or admission number."
                                     : filterStatus !== "all"
-                                        ? `Switch the filter to "All" to see all students.`
+                                        ? `There are no Students marked as inactive at this time.`
                                         : "Add the first student for this branch."
                             }
                             action={

@@ -299,7 +299,7 @@ const DriversListPage: React.FC = () => {
                                 debouncedSearch
                                     ? "Try a different name or license number."
                                     : filterStatus !== "all"
-                                        ? `Switch the filter to "All" to see all Drivers.`
+                                        ? `There are no drivers marked as inactive at this time.`
                                         : "Add the first Drivers for this branch."
                             }
                             action={
