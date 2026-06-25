@@ -90,9 +90,6 @@ export const StudentCard: React.FC<StudentCardProps> = ({
     /** Navigate to the student detail page, forwarding tenant context. */
     const goToDetail = (e?: React.MouseEvent) => {
         e?.stopPropagation();
-        console.log(
-        `/students/${student.student_id}`
-        );
         navigate(`/students/${student.student_id}`, {
             state: {
                 breadcrumbLabel: fullName,
@@ -109,7 +106,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({
             <div className="flex items-start justify-between px-5 pt-5 pb-2">
                 <div className="flex items-center gap-3 min-w-0">
                     {/* Avatar with initials */}
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-sm font-bold text-white shadow-sm shadow-emerald-500/20">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-500 text-sm font-bold text-black shadow-sm shadow-emerald-500/20">
                         {initials}
                     </div>
 
@@ -130,12 +127,12 @@ export const StudentCard: React.FC<StudentCardProps> = ({
 
             {/* ── Grade / section highlight band ───────────────────────── */}
             <div className="mx-5 mb-3">
-                <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-2.5">
+                <div className="flex items-center gap-2.5 rounded-xl bg-amber-50 border border-amber-100 px-4 py-2.5">
                     <GraduationCap
                         size={14}
-                        className="text-emerald-500 shrink-0"
+                        className="text-yellow-500 shrink-0"
                     />
-                    <p className="text-xs font-semibold text-emerald-700 truncate">
+                    <p className="text-xs font-semibold text-yellow-700 truncate">
                         {gradeLabel}
                     </p>
                 </div>
@@ -167,10 +164,10 @@ export const StudentCard: React.FC<StudentCardProps> = ({
                     onClick={goToDetail}
                     className={[
                         "flex w-full items-center justify-between",
-                        "rounded-xl bg-emerald-50 border border-emerald-100",
+                        "rounded-xl bg-amber-50 border border-amber-100",
                         "px-4 py-2.5",
-                        "text-xs font-semibold text-emerald-600",
-                        "hover:bg-emerald-100 hover:border-emerald-200 transition-colors",
+                        "text-xs font-semibold text-blue-600",
+                        "hover:bg-yellow-100 hover:border-yellow-200 transition-colors",
                     ].join(" ")}
                 >
                     <span>View detail &amp; parents</span>

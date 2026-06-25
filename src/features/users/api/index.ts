@@ -12,7 +12,8 @@ export {
     getStudent,
     createStudent,
     updateStudent,
-    deactivateStudent
+    deactivateStudent,
+    reactivateStudent
 } from "./students.api"
 
 export {

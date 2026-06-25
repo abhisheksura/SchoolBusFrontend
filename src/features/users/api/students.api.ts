@@ -9,6 +9,8 @@ import type {
     StudentUpdateRequest,
     StudentFilters,
 } from "../types";
+import type { TenantScopeRequest } from "@/tenant";
+
 /**
  * Fetch a paginated, tenant-scoped list of students.
  *
@@ -86,14 +88,24 @@ export const updateStudent = async (
  * Soft-delete a student (sets is_active = false).
  * Returns the updated StudentResponse.
  */
-export const deactivateStudent = async (
+export const deactivateStudent = async(
     studentId: number,
-    schoolId : number,
-    branchId : number,
+    scope: TenantScopeRequest
 ): Promise<StudentResponse> => {
-    const { data } = await apiClient.delete<StudentResponse>(
-        `/students/${studentId}`,
-        { params: { school_id: schoolId, branch_id: branchId } },
+    const { data } = await apiClient.patch<StudentResponse>(
+        `/students/${studentId}/deactivate`,
+        scope,
     );
     return data;
-};
+}
+
+export const reactivateStudent = async(
+    studentId: number,
+    scope: TenantScopeRequest
+): Promise<StudentResponse> => {
+    const { data } = await apiClient.patch<StudentResponse>(
+        `/students/${studentId}/reactivate`,
+        scope,
+    );
+    return data;
+}

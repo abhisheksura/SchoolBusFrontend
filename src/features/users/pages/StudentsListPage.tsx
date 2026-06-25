@@ -35,6 +35,7 @@ import {
     createStudent,
     updateStudent,
     deactivateStudent,
+    reactivateStudent
 } from "../api";
 import type {
     StudentResponse,
@@ -153,8 +154,17 @@ const StudentsListPage: React.FC = () => {
         /**
          * toggleFn (deactivate) also needs school_id + branch_id.
          */
-        toggleFn   : (id) =>
-            deactivateStudent(id, gate.resolvedSchoolId!, gate.resolvedBranchId!),
+        toggleFn   : (student) =>
+            student.is_active
+                ? deactivateStudent(
+                    student.student_id,
+                    {
+                        school_id: gate.resolvedSchoolId!,
+                        branch_id: gate.resolvedBranchId!
+                    })
+                : reactivateStudent(
+                    student.student_id,
+                    {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
         getEntityId: (s) => s.student_id,
         onCreateSuccess: () => studentModal.close(),
         onUpdateSuccess: () => studentModal.close(),
@@ -237,7 +247,7 @@ const StudentsListPage: React.FC = () => {
                             "inline-flex items-center gap-2 rounded-xl px-5 py-2.5",
                             "text-sm font-semibold text-white shadow-sm transition-colors",
                             gate.scopeReady
-                                ? "bg-emerald-500 hover:bg-emerald-600"
+                                ? "bg-blue-500 hover:bg-blue-600"
                                 : "cursor-not-allowed bg-slate-300",
                         ].join(" ")}
                     >
@@ -253,16 +263,16 @@ const StudentsListPage: React.FC = () => {
             {/* ── Scope prompt or page content ─────────────────────────────── */}
             {!gate.scopeReady ? (
                 <EmptyState
-                    icon={<Users size={24} className="text-emerald-400" />}
+                    icon={<Users size={24} className="text-blue-400" />}
                     title={
                         gate.resolvedSchoolId
-                            ? "Select a branch to continue"
-                            : "Select a school to continue"
+                            ? "Select a Branch to continue"
+                            : "Select a School to continue"
                     }
                     description={
                         gate.resolvedSchoolId
-                            ? "Pick a branch above to view and manage its students."
-                            : "Pick a school first, then choose a branch."
+                            ? "Pick a Branch above to view and manage its students."
+                            : "Pick a School first, then choose a Branch."
                     }
                     variant="scope"
                 />
