@@ -4,6 +4,8 @@ import { useForm }     from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z }           from "zod";
 
+import { FormField } from "@/components/ui/form/FormField";
+import { TextInput } from "@/components/ui/form/TextInput";
 import { SubmitButton, CancelButton } from "@/components";
 import type { DriverResponse }       from "../types";
 
@@ -42,24 +44,6 @@ export type DriverFormData = z.input<typeof driverSchema>;
 // =============================================================================
 // Props
 // =============================================================================
-// =============================================================================
-// Styles (defined once — same pattern as RouteForm)
-// =============================================================================
-
-const INPUT =
-    "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 " +
-    "text-sm text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-emerald-400 " +
-    "focus:ring-2 focus:ring-emerald-500/20 " +
-    "disabled:bg-slate-50 disabled:cursor-not-allowed";
-
-const INPUT_ERR =
-    "w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 " +
-    "text-sm text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-red-400 disabled:cursor-not-allowed";
-
-const LABEL =
-    "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 interface DriverFormProps {
     /** Existing driver when editing; omit or pass undefined for create mode. */
@@ -96,84 +80,56 @@ export const DriverForm: React.FC<DriverFormProps> = ({
             className="space-y-5"
         >
             {/* ── First Name ─────────────────────────────────────────── */}
-            <div>
-                <label className={LABEL}>
-                    First Name <span className="text-red-500">*</span>
-                </label>
-                <input
+            <FormField
+                label="First Name"
+                required
+                error={errors.first_name?.message}
+            >
+                <TextInput
                     {...register("first_name")}
                     type="text"
                     placeholder="e.g. Arjun"
                     disabled={isLoading}
-                    autoFocus={!isEdit}
-                    className={errors.first_name ? INPUT_ERR : INPUT}
                 />
-                {errors.first_name && (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.first_name.message}
-                    </p>
-                )}
-            </div>
+            </FormField>
             {/* ── Last Name ──────────────────────────────────────────── */}
-            <div>
-                <label className={LABEL}>Last Name</label>
-                <input
+            <FormField
+                label="Last Name"
+                error={errors.last_name?.message}
+            >
+                <TextInput
                     {...register("last_name")}
                     type="text"
                     placeholder="e.g. Sharma"
                     disabled={isLoading}
-                    className={errors.last_name ? INPUT_ERR : INPUT}
                 />
-                {errors.last_name && (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.last_name.message}
-                    </p>
-                )}
-            </div>
-            <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Phone
-                </label>
-
-                <input
+            </FormField>
+            {/* ── Phone ──────────────────────────────────────────────── */}
+            <FormField
+                label="Phone"
+                error={errors.phone?.message}
+                hint="Include country code, e.g. +91 98765 43210"
+            >
+                <TextInput
                     {...register("phone")}
                     type="tel"
                     placeholder="+91 98765 43210"
-                    className={errors.phone ? INPUT_ERR : INPUT}
                     disabled={isLoading}
                 />
+            </FormField>
 
-                {errors.phone && (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.phone.message}
-                    </p>
-                )}
-                <p className="mt-1 text-xs text-muted-foreground">
-                    Include country code, e.g. +91 98765 43210
-                </p>
-            </div>
-
-            {/* License Number */}
-            <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    license_number
-                </label>
-
-                <input
+            {/* ── License Number ─────────────────────────────────────── */}
+            <FormField
+                label="License Number"
+                error={errors.license_number?.message}
+            >
+                <TextInput
                     {...register("license_number")}
                     type="text"
                     placeholder="License Number"
-                    className={errors.license_number ? INPUT_ERR : INPUT}
                     disabled={isLoading}
                 />
-
-                {errors.license_number && (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.license_number.message}
-                    </p>
-                )}
-            </div>
-
+            </FormField>
             {/* ── Active toggle — edit mode only ─────────────────────── */}
             {isEdit && (
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
