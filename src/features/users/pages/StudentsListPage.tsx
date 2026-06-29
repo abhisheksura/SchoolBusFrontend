@@ -166,6 +166,7 @@ const StudentsListPage: React.FC = () => {
                     student.student_id,
                     {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
         getEntityId: (s) => s.student_id,
+        getEntityName  : (s)=> [s.first_name, s.last_name].join(" "),
         onCreateSuccess: () => studentModal.close(),
         onUpdateSuccess: () => studentModal.close(),
         onToggleSuccess: () => setConfirmStudent(null),

@@ -1,7 +1,7 @@
 
 import React, { useState }       from "react";
 import { useQuery }              from "@tanstack/react-query";
-import { Phone, Plus, Users }           from "lucide-react";
+import { Phone, Plus, Users }    from "lucide-react";
 import { useAuth }               from "@/features/auth/";
 import { useTenantGate }         from "@/tenant/hooks/useTenantGate";
 import { useDebounce, usePagination } from "@/core";
@@ -144,6 +144,7 @@ const DriversListPage: React.FC = () => {
                     driver.driver_id,
                     {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
         getEntityId: (d) => d.driver_id,
+        getEntityName  : (d)=> [d.first_name, d.last_name].join(" "),
         onCreateSuccess: () => driverModal.close(),
         onUpdateSuccess: () => driverModal.close(),
         onToggleSuccess: () => setConfirmDriver(null),

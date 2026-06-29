@@ -22,7 +22,7 @@ export interface UseEntityMutationOptions<T, TCreate, TUpdate> {
 
     toggleFn: (entity: T) => Promise<any>;
     getEntityId: (entity: T) => number;
-
+    getEntityName: (entity: T) => string;
     onCreateSuccess?: () => void;
     onUpdateSuccess?: () => void;
     onToggleSuccess?: () => void;
@@ -41,6 +41,7 @@ export function useEntityMutation<
     toggleFn,
 
     getEntityId,
+    getEntityName,
 
     onCreateSuccess,
     onUpdateSuccess,
@@ -97,20 +98,20 @@ export function useEntityMutation<
                 data
             ),
 
-        onSuccess: () => {
+        onSuccess: (_data, variables: UpdatePayload<T, TUpdate>) => {
             invalidate();
 
             toast.success(
-                `${entityName} updated successfully`
+                `${entityName} ${getEntityName(variables.entity)} updated successfully`
             );
 
             onUpdateSuccess?.();
         },
 
-        onError: (err: any) => {
+        onError: (err: any, variables: UpdatePayload<T, TUpdate>) => {
             toast.error(
                 err.response?.data?.detail ||
-                `Failed to update ${entityName.toLowerCase()}`
+                `Failed to update ${entityName} ${getEntityName(variables.entity).toLowerCase()}`
             );
         },
     });
@@ -123,20 +124,20 @@ export function useEntityMutation<
         mutationFn: (entity: T) =>
             toggleFn(entity),
 
-        onSuccess: () => {
+        onSuccess: (_data, entity: T) => {
             invalidate();
 
             toast.success(
-                `${entityName} status updated successfully`
+                `${entityName} ${getEntityName(entity)} status updated successfully`
             );
 
             onToggleSuccess?.();
         },
 
-        onError: (err: any) => {
+        onError: (err: any, entity: T) => {
             toast.error(
                 err.response?.data?.detail ||
-                `Failed to update ${entityName.toLowerCase()} status`
+                `Failed to update ${entityName} ${getEntityName(entity).toLowerCase()} status`
             );
         },
     });

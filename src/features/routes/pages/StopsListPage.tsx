@@ -138,6 +138,7 @@ const StopsListPage: React.FC = () => {
                     stop.stop_id,
                     {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
         getEntityId: (s) => s.stop_id,
+        getEntityName  : (s)=> s.stop_name,
         onCreateSuccess: () => stopModal.close(),
         onUpdateSuccess: () => stopModal.close(),
         onToggleSuccess: () => setConfirmStop(null),
