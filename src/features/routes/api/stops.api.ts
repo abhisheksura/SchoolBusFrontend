@@ -3,6 +3,7 @@
 // ===========================================================================
 import { apiClient } from "@/core";
 import type { PaginatedResponse } from "@/core/types/pagination";
+import type { TenantScopeRequest } from "@/tenant";
 import type {
     StopResponse,
     StopCreateRequest,
@@ -51,11 +52,14 @@ export const createStop = async (
  */
 export const updateStop = async (
     stopId : number,
+    schoolId: number,
+    branchId: number,
     payload: StopUpdateRequest,
 ): Promise<StopResponse> => {
-    console.log("Payload");
-    console.log(payload);
-    const { data } = await apiClient.patch<StopResponse>(`/stops/${stopId}`, payload);
+    const { data } = await apiClient.patch<StopResponse>(
+        `/stops/${stopId}`, payload,
+        { params: { school_id: schoolId, branch_id: branchId } },
+    );
     return data;
 };
 
@@ -63,7 +67,22 @@ export const updateStop = async (
  * Soft-delete a stop (sets is_active = false).
  * Returns the updated Stop record.
  */
-export const deactivateStop = async (stopId: number): Promise<StopResponse> => {
-    const { data } = await apiClient.delete<StopResponse>(`/stops/${stopId}`);
+export const deactivateStop = async (
+    stopId: number,
+    scope: TenantScopeRequest
+): Promise<StopResponse> => {
+    const { data } = await apiClient.patch<StopResponse>(`/stops/${stopId}/deactivate`, scope);
     return data;
 };
+
+
+export const reactivateStop = async(
+    stopId: number,
+    scope: TenantScopeRequest
+): Promise<StopResponse> => {
+    const { data } = await apiClient.patch<StopResponse>(
+        `/stops/${stopId}/reactivate`,
+        scope,
+    );
+    return data;
+}

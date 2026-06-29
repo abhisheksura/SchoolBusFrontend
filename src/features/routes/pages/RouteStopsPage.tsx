@@ -559,8 +559,7 @@ const RouteStopsPage: React.FC = () => {
     // ── UI state ─────────────────────────────────────────────────────────────
     const [activeTab,    setActiveTab]    = useState<TripType>("PICKUP");
     const [confirmItem,  setConfirmItem]  = useState<RouteStop | null>(null);
-    console.log("SchoolId"+schoolId)
-    console.log("Branch"+branchId)
+
     // ── Query 1 — Route header ───────────────────────────────────────────────
     const {
         data : route,

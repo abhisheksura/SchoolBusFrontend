@@ -3,7 +3,7 @@
 import { lazy } from "react";
 import type { RouteConfig } from "@/app/routes";
 
-const StopsListPage = lazy(() => import("@/modules/routes/pages/StopsListPage"));
+const StopsListPage = lazy(() => import("./pages/StopsListPage"));
 const RoutesListPage = lazy(() => import("./pages/RoutesListPage"));
 const RouteStopsPage = lazy(() => import("./pages/RouteStopsPage"));
 

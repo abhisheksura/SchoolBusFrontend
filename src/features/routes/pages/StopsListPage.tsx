@@ -1,24 +1,11 @@
-// src/features/students/pages/StudentsListPage.tsx
-//
-// Route:   /students
-// Access:  SCHOOL_ADMIN, BRANCH_ADMIN (SUPER_ADMIN bypasses via RoleGuard)
-//
-// Follows the exact same pattern as RoutesListPage:
-//   • useTenantGate() for school / branch scope selection
-//   • TenantGate component rendered below the header
-//   • EmptyState when scope is not yet resolved
-//   • useEntityModal + useEntityMutation for CRUD
-//   • EntityModal + EntityStatusConfirmModal
-//   • StatsGrid + SearchFilterBar + card grid + pagination
 
 import React, { useState }       from "react";
-import { useQuery }              from "@tanstack/react-query";
-import { Plus, Users }           from "lucide-react";
-import { toast }                 from "sonner";
-
+import { Phone, Plus, Users }    from "lucide-react";
 import { useAuth }               from "@/features/auth/";
-import { useTenantGate }         from "@/tenant/hooks/useTenantGate";
+import { useQuery }              from "@tanstack/react-query";
 import { useDebounce, usePagination } from "@/core";
+
+import { TenantGate }            from "@/tenant";
 import {
     useEntityModal,
     useEntityMutation,
@@ -28,35 +15,27 @@ import {
     EmptyState,
     EntityModal,
 } from "@/components";
-import { TenantGate }            from "@/tenant";
-
+import { useTenantGate }         from "@/tenant/hooks/useTenantGate";
+import { toast }                 from "sonner";
 import {
-    getStudents,
-    createStudent,
-    updateStudent,
-    deactivateStudent,
-    reactivateStudent
+    createStop,
+    updateStop,
+    getStops,
+    deactivateStop,
+    reactivateStop
 } from "../api";
 import type {
-    StudentResponse,
-    StudentCreateRequest,
-    StudentUpdateRequest,
+    StopResponse,
+    StopCreateRequest,
+    StopUpdateRequest
 } from "../types";
-import { StudentCard }           from "../components/StudentCard";
-import { StudentForm }           from "../components/StudentForm";
-import type { StudentFormData }  from "../components/StudentForm";
-
-// =============================================================================
-// Types
-// =============================================================================
+import { StopCard }           from "../components/StopCard";
+import { StopForm }           from "../components/StopForm";
+import type { StopFormData }  from "../components/StopForm";
 
 type FilterStatus = "all" | "active" | "inactive";
 
-// =============================================================================
-// Component
-// =============================================================================
-
-const StudentsListPage: React.FC = () => {
+const StopsListPage: React.FC = () => {
     const { hasRole } = useAuth();
 
     // ── Role flags ────────────────────────────────────────────────────────────
@@ -76,23 +55,18 @@ const StudentsListPage: React.FC = () => {
     const debouncedSearch                 = useDebounce(search, 400);
     const { page, pageSize, setPage, setPageSize } = usePagination(15);
 
-    const activeOnly: boolean | undefined =
-        filterStatus === "active"   ? true  :
-        filterStatus === "inactive" ? false :
-        undefined;
-
     // ── Modals ────────────────────────────────────────────────────────────────
-    const studentModal                            = useEntityModal<StudentResponse>();
-    const [confirmStudent, setConfirmStudent]     = useState<StudentResponse | null>(null);
+    const stopModal                            = useEntityModal<StopResponse>();
+    const [confirmStop, setConfirmStop]        = useState<StopResponse | null>(null);
 
-    // ── Students query ────────────────────────────────────────────────────────
+        // ── Drivers query ────────────────────────────────────────────────────────
     //
     // The backend requires BOTH school_id and branch_id as query params.
     // Non-null assertions are safe because the query is disabled until
     // gate.scopeReady is true, guaranteeing both ids are defined.
     const { data, isLoading } = useQuery({
         queryKey: [
-            "students",
+            "stops",
             {
                 school_id    : gate.resolvedSchoolId,
                 branch_id    : gate.resolvedBranchId,
@@ -103,29 +77,27 @@ const StudentsListPage: React.FC = () => {
             },
         ],
         queryFn: () =>
-            getStudents({
+            getStops({
                 school_id  : gate.resolvedSchoolId!,
                 branch_id  : gate.resolvedBranchId!,
-                active_only: activeOnly,
+                //active_only: activeOnly,
                 page,
                 page_size  : pageSize,
             }),
         enabled  : gate.scopeReady,
         staleTime: 30_000,
     });
-
-    const allStudents   = data?.items ?? [];
+    const allStops      = data?.items ?? [];
     const total         = data?.total  ?? 0;
     const totalPages    = data?.pages  ?? 1;
-    const activeCount   = allStudents.filter((s: StudentResponse) =>  s.is_active).length;
-    const inactiveCount = allStudents.filter((s: StudentResponse) => !s.is_active).length;
+    const activeCount   = allStops.filter((s: StopResponse) =>  s.is_active).length;
+    const inactiveCount = allStops.filter((s: StopResponse) => !s.is_active).length;
 
     // Client-side search filter (backend list endpoint has no search param)
-    const students = allStudents.filter((s: StudentResponse) => {
-        const fullName = [s.first_name, s.last_name].filter(Boolean).join(" ");
+    const stops = allStops.filter((s: StopResponse) => {
+        const stopName = s.stop_name ?? "";
         const matchesSearch = debouncedSearch
-            ? fullName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-              (s.admission_number ?? "").toLowerCase().includes(debouncedSearch.toLowerCase())
+            ? stopName.toLowerCase().includes(debouncedSearch.toLowerCase())
             : true;
         const matchesStatus =
             filterStatus === "inactive" ? !s.is_active :
@@ -140,54 +112,50 @@ const StudentsListPage: React.FC = () => {
         updateMutation,
         toggleMutation,
         isLoading: isMutating,
-    } = useEntityMutation<StudentResponse, StudentCreateRequest, StudentUpdateRequest>({
-        entityName : "Student",
-        queryKey   : ["students"],
-        createFn   : createStudent,
+    } = useEntityMutation<StopResponse, StopCreateRequest, StopUpdateRequest>({
+        entityName : "Stop",
+        queryKey   : ["stops"],
+        createFn   : createStop,
         /**
-         * updateFn receives (id, data) — but our updateStudent API also needs
+         * updateFn receives (id, data) — but our updateStop API also needs
          * school_id + branch_id as query params. We wrap it here so the hook
          * stays generic.
          */
         updateFn   : (id, data) =>
-            updateStudent(id, gate.resolvedSchoolId!, gate.resolvedBranchId!, data),
+            updateStop(id, gate.resolvedSchoolId!, gate.resolvedBranchId!, data),
         /**
          * toggleFn (deactivate) also needs school_id + branch_id.
          */
-        toggleFn   : (student) =>
-            student.is_active
-                ? deactivateStudent(
-                    student.student_id,
+        toggleFn   : (stop) =>
+            stop.is_active
+                ? deactivateStop(
+                    stop.stop_id,
                     {
                         school_id: gate.resolvedSchoolId!,
                         branch_id: gate.resolvedBranchId!
                     })
-                : reactivateStudent(
-                    student.student_id,
+                : reactivateStop(
+                    stop.stop_id,
                     {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
-        getEntityId: (s) => s.student_id,
-        onCreateSuccess: () => studentModal.close(),
-        onUpdateSuccess: () => studentModal.close(),
-        onToggleSuccess: () => setConfirmStudent(null),
+        getEntityId: (s) => s.stop_id,
+        onCreateSuccess: () => stopModal.close(),
+        onUpdateSuccess: () => stopModal.close(),
+        onToggleSuccess: () => setConfirmStop(null),
     });
-
-    // ── Submit handler ────────────────────────────────────────────────────────
 
     /**
      * Unified create + edit handler.
-     * On create: school_id + branch_id are injected from gate so StudentForm
+     * On create: school_id + branch_id are injected from gate so StopForm
      * stays completely tenant-agnostic.
      */
-    const handleSubmit = async (formData: StudentFormData): Promise<void> => {
-        if (studentModal.isEdit && studentModal.item) {
+    const handleSubmit = async (formData: StopFormData): Promise<void> => {
+        if (stopModal.isEdit && stopModal.item) {
             await updateMutation.mutateAsync({
-                entity: studentModal.item,
+                entity: stopModal.item,
                 data  : {
-                    first_name      : formData.first_name,
-                    last_name       : formData.last_name || null,
-                    admission_number: formData.admission_number || null,
-                    grade           : formData.grade    || null,
-                    section         : formData.section  || null,
+                    stop_name       : formData.stop_name,
+                    latitude        : formData.latitude,
+                    longitude       : formData.longitude,
                     is_active       : formData.is_active,
                 },
             });
@@ -195,40 +163,33 @@ const StudentsListPage: React.FC = () => {
             await createMutation.mutateAsync({
                 school_id       : gate.resolvedSchoolId!,
                 branch_id       : gate.resolvedBranchId!,
-                first_name      : formData.first_name,
-                last_name       : formData.last_name       || null,
-                admission_number: formData.admission_number || null,
-                grade           : formData.grade           || null,
-                section         : formData.section         || null,
+                stop_name       : formData.stop_name,
+                latitude        : formData.latitude,
+                longitude       : formData.longitude,
             });
         }
     };
-
-    // ── Create guard ──────────────────────────────────────────────────────────
     const handleOpenCreate = (): void => {
         if (!gate.scopeReady) {
             toast.error("Please select a school and branch first.");
             return;
         }
-        studentModal.openCreate();
+        stopModal.openCreate();
     };
-
-    // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="mx-auto flex max-w-7xl flex-col gap-5">
-
             {/* ── Page header ──────────────────────────────────────────────── */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-slate-800">
-                        Students
+                        Stops
                     </h1>
                     <p className="mt-0.5 text-sm text-slate-400">
                         {isSuperAdmin
-                            ? "Select a school and branch, then manage its students."
+                            ? "Select a School and Branch, then manage its Stops."
                             : isSchoolAdmin
-                                ? "Select a branch to view and manage its students."
-                                : "Manage students for your branch."
+                                ? "Select a Branch to view and manage its Stop."
+                                : "Manage Stops for your branch."
                         }
                     </p>
                 </div>
@@ -241,7 +202,7 @@ const StudentsListPage: React.FC = () => {
                         title={
                             gate.scopeReady
                                 ? undefined
-                                : "Select a school and branch first"
+                                : "Select a School and Branch first"
                         }
                         className={[
                             "inline-flex items-center gap-2 rounded-xl px-5 py-2.5",
@@ -252,11 +213,10 @@ const StudentsListPage: React.FC = () => {
                         ].join(" ")}
                     >
                         <Plus size={16} strokeWidth={2.5} />
-                        Add Student
+                        Add Stop
                     </button>
                 )}
             </div>
-
             {/* ── Tenant gate ───────────────────────────────────────────────── */}
             <TenantGate gate={gate} />
 
@@ -271,17 +231,17 @@ const StudentsListPage: React.FC = () => {
                     }
                     description={
                         gate.resolvedSchoolId
-                            ? "Pick a Branch above to view and manage its students."
+                            ? "Pick a Branch above to view and manage its Stops."
                             : "Pick a School first, then choose a Branch."
                     }
                     variant="scope"
                 />
             ) : (
                 <>
-                    {/* ── Stat pills ─────────────────────────────────────── */}
+                {/* ── Stat pills ─────────────────────────────────────── */}
                     <StatsGrid
                         items={[
-                            { value: total,         label: "Total Students"             },
+                            { value: total,         label: "Total Stops"             },
                             { value: activeCount,   label: "Active",   color: "green"   },
                             { value: inactiveCount, label: "Inactive", color: "slate"   },
                         ]}
@@ -290,7 +250,7 @@ const StudentsListPage: React.FC = () => {
                     {/* ── Search + filter ────────────────────────────────── */}
                     <SearchFilterBar
                         search={search}
-                        placeholder="Search by name or admission number…"
+                        placeholder="Search by StopName…"
                         onSearchChange={(val) => { setSearch(val); setPage(1); }}
                         filters={[
                             { label: "All",      value: "all"      },
@@ -314,27 +274,27 @@ const StudentsListPage: React.FC = () => {
                                 />
                             ))}
                         </div>
-                    ) : students.length === 0 ? (
+                    ) : stops.length === 0 ? (
                         <EmptyState
                             emoji={debouncedSearch ? "🔍" : "🎓"}
                             title={
                                 debouncedSearch
                                     ? `No results for "${debouncedSearch}"`
                                     : filterStatus !== "all"
-                                        ? `No ${filterStatus} students`
-                                        : "No students yet"
+                                        ? `No ${filterStatus} Stops`
+                                        : "No Stops yet"
                             }
                             description={
                                 debouncedSearch
-                                    ? "Try a different name or admission number."
+                                    ? "Try a different name or license number."
                                     : filterStatus !== "all"
-                                        ? `There are no students marked as inactive at this time.`
-                                        : "Add the first student for this branch."
+                                        ? `There are no stops marked as inactive at this time.`
+                                        : "Add the first Stop for this branch."
                             }
                             action={
                                 !debouncedSearch && filterStatus === "all" && canEdit
                                     ? {
-                                        label  : "Add your first student",
+                                        label  : "Add your first Stop ",
                                         onClick: handleOpenCreate,
                                     }
                                     : undefined
@@ -342,24 +302,23 @@ const StudentsListPage: React.FC = () => {
                         />
                     ) : (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {students.map((student) => (
-                                <StudentCard
-                                    key={student.student_id}
-                                    student={student}
+                            {stops.map((stop) => (
+                                <StopCard
+                                    key={stop.stop_id}
+                                    stop={stop}
                                     showSchool={isSuperAdmin || isSchoolAdmin}
                                     canEdit={canEdit}
-                                    onEdit={studentModal.openEdit}
-                                    onToggle={setConfirmStudent}
+                                    onEdit={stopModal.openEdit}
+                                    onToggle={setConfirmStop}
                                 />
                             ))}
                         </div>
                     )}
-
                     {/* ── Pagination ─────────────────────────────────────── */}
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-3.5">
                             <p className="text-xs text-slate-400">
-                                Page {page} of {totalPages} · {total} students
+                                Page {page} of {totalPages} · {total} Stops
                             </p>
                             <div className="flex gap-1.5">
                                 <button
@@ -383,54 +342,45 @@ const StudentsListPage: React.FC = () => {
                     )}
                 </>
             )}
-
             {/* ── Create / Edit modal ────────────────────────────────────────── */}
             <EntityModal
-                open={studentModal.open}
-                mode={studentModal.mode}
-                entityName="Student"
+                open={stopModal.open}
+                mode={stopModal.mode}
+                entityName="Stop"
                 itemName={
-                    studentModal.item
-                        ? [
-                            studentModal.item.first_name,
-                            studentModal.item.last_name,
-                          ]
-                              .filter(Boolean)
-                              .join(" ")
+                    stopModal.item
+                        ? stopModal.item.stop_name
                         : undefined
                 }
-                onClose={studentModal.close}
+                onClose={stopModal.close}
                 size="md"
-                createSubtitle="Student must already have a platform user account"
+                createSubtitle="Stops must be aligned to the Routes"
             >
-                <StudentForm
-                    student={studentModal.item ?? undefined}
+                <StopForm
+                    stop={stopModal.item ?? undefined}
                     onSubmit={handleSubmit}
-                    onCancel={studentModal.close}
+                    onCancel={stopModal.close}
                     isLoading={isMutating}
                 />
             </EntityModal>
 
             {/* ── Confirm status toggle ──────────────────────────────────────── */}
             <EntityStatusConfirmModal
-                open={!!confirmStudent}
-                entity={confirmStudent}
-                entityName="Student"
+                open={!!confirmStop}
+                entity={confirmStop}
+                entityName="Stop"
                 entityLabel={
-                    confirmStudent
-                        ? [confirmStudent.first_name, confirmStudent.last_name]
-                              .filter(Boolean)
-                              .join(" ")
+                    confirmStop
+                        ? confirmStop.stop_name
                         : ""
                 }
                 isLoading={toggleMutation.isPending}
                 onConfirm={() =>
-                    confirmStudent && toggleMutation.mutate(confirmStudent)
+                    confirmStop && toggleMutation.mutate(confirmStop)
                 }
-                onCancel={() => setConfirmStudent(null)}
+                onCancel={() => setConfirmStop(null)}
             />
         </div>
     );
-};
-
-export default StudentsListPage;
+}
+export default StopsListPage;

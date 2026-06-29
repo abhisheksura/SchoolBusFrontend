@@ -16,5 +16,9 @@ export {
 } from './route-stops.api'
 
 export {
-    getStops
+    createStop,
+    updateStop,
+    getStops,
+    deactivateStop,
+    reactivateStop
 } from './stops.api'
