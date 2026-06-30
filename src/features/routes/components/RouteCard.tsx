@@ -19,14 +19,14 @@ import {
     MapPin,
     Calendar,
 }                           from "lucide-react";
-
 import {
     StatusBadge,
     CardEditButton,
     ToggleActiveButton,
     BaseCard,
     CardFooter,
-}                           from "@/components";
+    CardMetaRow,
+}                       from "@/components";
 import { formatDate }       from "@/core/utils/formatters";
 
 import type { RouteResponse } from "../types";
@@ -83,40 +83,40 @@ export const RouteCard: React.FC<RouteCardProps> = ({
             <div className="flex items-start justify-between px-5 pt-5 pb-2">
                 <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50">
-                        <Route size={20} className="text-indigo-500" />
+                        <Route size={20} className="text-blue-500" />
                     </div>
+
                     <div className="min-w-0">
-                        {/* Monospace route_code badge */}
-                        <span className="inline-block rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold tracking-widest text-slate-500 mb-1">
-                            {route.route_code}
-                        </span>
-                        {/* Human-readable name */}
                         <p className="text-sm font-bold text-slate-800 leading-tight truncate">
                             {route.route_name}
                         </p>
+                        {route.route_code && (
+                            <span className="inline-block rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold tracking-widest text-slate-500 mb-1">
+                                {route.route_code}
+                            </span>
+                        )}
                     </div>
                 </div>
                 <StatusBadge active={route.is_active} />
             </div>
 
-            {/* ── Meta rows ───────────────────────────────────────────────── */}
-            <div className="flex flex-col gap-1 px-5 pb-3">
+            {/* ── Meta rows ────────────────────────────────────────────── */}
+            <div className="flex flex-col gap-1 px-5 pb-4">
                 {showSchool && (
                     <>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                            <Building2 size={11} className="shrink-0 text-slate-400" />
-                            <span className="truncate">{route.school_name}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                            <MapPin size={11} className="shrink-0 text-slate-400" />
-                            <span className="truncate">{route.branch_name}</span>
-                        </div>
+                        <CardMetaRow icon={<Building2 size={11} />}>
+                            {/* school_name not on RouteResponse — show school_id */}
+                            School: <span>{route.school_name}</span>
+                        </CardMetaRow>
+                        <CardMetaRow icon={<MapPin size={11} />}>
+                            Branch: <span>{route.branch_name}</span>
+                        </CardMetaRow>
                     </>
                 )}
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <Calendar size={11} className="shrink-0" />
-                    <span>Added {formatDate(route.created_at)}</span>
-                </div>
+
+                <CardMetaRow icon={<Calendar size={11} />}>
+                    Added: {formatDate(route.created_at)}
+                </CardMetaRow>
             </div>
 
             {/* ── View Stops CTA ───────────────────────────────────────────── */}
@@ -126,10 +126,10 @@ export const RouteCard: React.FC<RouteCardProps> = ({
                     onClick={goToStops}
                     className={[
                         "flex w-full items-center justify-between",
-                        "rounded-xl bg-indigo-50 border border-indigo-100",
+                        "rounded-xl bg-blue-50 border border-blue-100",
                         "px-4 py-2.5",
-                        "text-xs font-semibold text-indigo-600",
-                        "hover:bg-indigo-100 hover:border-indigo-200 transition-colors",
+                        "text-xs font-semibold text-blue-600",
+                        "hover:bg-blue-100 hover:border-blue-200 transition-colors",
                     ].join(" ")}
                 >
                     <span>View &amp; Manage stops</span>

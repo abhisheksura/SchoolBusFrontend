@@ -5,7 +5,8 @@ export {
     getRoute,
     createRoute,
     updateRoute,
-    deactivateRoute
+    deactivateRoute,
+    reactivateRoute
 } from './routes.api'
 
 export {

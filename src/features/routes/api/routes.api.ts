@@ -9,6 +9,7 @@ import type {
     RouteUpdateRequest,
     RouteFilters,
 } from "../types";
+import type { TenantScopeRequest } from "@/tenant";
 
 export const getRoutes = async (
     filters?: RouteFilters,
@@ -27,7 +28,6 @@ export const getRoute = async (routeId: number): Promise<RouteResponse> => {
 };
 
 
-
 /**
  * Create a new route.
  * school_id and branch_id are required for multi-tenancy.
@@ -44,10 +44,16 @@ export const createRoute = async (
  * school_id / branch_id excluded — immutable after creation.
  */
 export const updateRoute = async (
-    routeId: number,
-    payload: RouteUpdateRequest,
+    routeId  : number,
+    schoolId : number,
+    branchId : number,
+    payload  : RouteUpdateRequest,
 ): Promise<RouteResponse> => {
-    const { data } = await apiClient.put<RouteResponse>(`/routes/${routeId}`, payload);
+    const { data } = await apiClient.patch<RouteResponse>(
+        `/routes/${routeId}`,
+        payload,
+        { params: { school_id: schoolId, branch_id: branchId } },
+    );
     return data;
 };
 
@@ -55,7 +61,24 @@ export const updateRoute = async (
  * Soft-delete a route (sets is_active = false).
  * Returns the updated Route record.
  */
-export const deactivateRoute = async (routeId: number): Promise<RouteResponse> => {
-    const { data } = await apiClient.delete<RouteResponse>(`/routes/${routeId}`);
+export const deactivateRoute = async(
+    routeId: number,
+    scope: TenantScopeRequest
+): Promise<RouteResponse> => {
+    const { data } = await apiClient.patch<RouteResponse>(
+        `/routes/${routeId}/deactivate`,
+        scope,
+    );
+    return data;
+};
+
+export const reactivateRoute = async(
+    routeId: number,
+    scope: TenantScopeRequest
+): Promise<RouteResponse> => {
+    const { data } = await apiClient.patch<RouteResponse>(
+        `/routes/${routeId}/reactivate`,
+        scope,
+    );
     return data;
 };

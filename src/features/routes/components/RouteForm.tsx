@@ -14,7 +14,8 @@ import React from "react";
 import { useForm }         from "react-hook-form";
 import { zodResolver }     from "@hookform/resolvers/zod";
 import { z }               from "zod";
-
+import { FormField } from "@/components/ui/form/FormField";
+import { TextInput } from "@/components/ui/form/TextInput";
 import { SubmitButton, CancelButton } from "@/components";
 import type { RouteResponse }         from "../types";
 
@@ -51,25 +52,6 @@ interface RouteFormProps {
     onCancel   : () => void;
     isLoading ?: boolean;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Styles (defined once, referenced below)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const INPUT =
-    "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 " +
-    "text-sm text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-indigo-400 " +
-    "focus:ring-2 focus:ring-indigo-500/20 " +
-    "disabled:bg-slate-50 disabled:cursor-not-allowed";
-
-const INPUT_ERR =
-    "w-full rounded-xl border border-red-300 bg-red-50/40 px-4 py-3 " +
-    "text-sm text-slate-800 outline-none transition-all duration-150 " +
-    "placeholder:text-slate-400 focus:border-red-400 disabled:cursor-not-allowed";
-
-const LABEL =
-    "mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
@@ -109,52 +91,39 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* ── Route Name ───────────────────────────────────────────────── */}
+            <FormField
+                label="Route Name"
+                required
+                error={errors.route_name?.message}
+            >
+                <TextInput
+                    {...register("route_name")}
+                    type="text"
+                    placeholder="e.g. Miyapur"
+                    disabled={isLoading}
+                    autoFocus={!isEdit}
+                />
+            </FormField>
 
             {/* ── Route Code ───────────────────────────────────────────────── */}
-            <div>
-                <label className={LABEL}>
-                    Route Code <span className="text-red-500">*</span>
-                </label>
-                <input
+            <FormField
+                label="Route Code"
+                required
+                error={errors.route_code?.message}
+            >
+                <TextInput
                     {...register("route_code")}
                     type="text"
-                    placeholder="e.g. RT-001 or NORTH-A"
+                    placeholder="e.g. SRA-001"
                     disabled={isLoading}
+                    autoFocus={!isEdit}
                     onInput={(e) => {
                         // Auto-uppercase so the user never has to think about it
                         e.currentTarget.value = e.currentTarget.value.toUpperCase();
                     }}
-                    className={errors.route_code ? INPUT_ERR : INPUT}
                 />
-                {errors.route_code ? (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.route_code.message}
-                    </p>
-                ) : (
-                    <p className="mt-1 text-xs text-slate-400">
-                        Uppercase letters, numbers, and hyphens — e.g. RT-001
-                    </p>
-                )}
-            </div>
-
-            {/* ── Route Name ───────────────────────────────────────────────── */}
-            <div>
-                <label className={LABEL}>
-                    Route Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                    {...register("route_name")}
-                    type="text"
-                    placeholder="e.g. North Zone Morning Route"
-                    disabled={isLoading}
-                    className={errors.route_name ? INPUT_ERR : INPUT}
-                />
-                {errors.route_name && (
-                    <p className="mt-1 text-xs text-red-500">
-                        {errors.route_name.message}
-                    </p>
-                )}
-            </div>
+            </FormField>
 
             {/* ── Active toggle — edit mode only ───────────────────────────── */}
             {isEdit && (

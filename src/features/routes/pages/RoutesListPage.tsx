@@ -2,55 +2,57 @@
 
 import React, { useState }       from "react";
 import { useQuery }              from "@tanstack/react-query";
-import { useAuth } from "@/features/auth/";
-import { useTenantGate } from "@/tenant/hooks/useTenantGate";
+import { Plus, Users }           from "lucide-react";
+import { toast }                 from "sonner";
+
+import { useAuth }               from "@/features/auth/";
+import { useTenantGate }         from "@/tenant/hooks/useTenantGate";
+
 import { useDebounce, usePagination } from "@/core";
-import { Plus, Route as RouteIcon, Building2, GitBranch } from "lucide-react";
-import { useEntityModal, useEntityMutation, EntityStatusConfirmModal } from "@/components";
-import { toast }          from "sonner";
+import {
+    useEntityModal,
+    useEntityMutation,
+    EntityStatusConfirmModal,
+    StatsGrid,
+    SearchFilterBar,
+    EmptyState,
+    EntityModal,
+} from "@/components";
 import {
     getRoutes,
     createRoute,
     updateRoute,
     deactivateRoute,
+    reactivateRoute
 } from "../api";
+import { TenantGate }            from "@/tenant";
+
 import type {
     RouteResponse,
     RouteCreateRequest,
     RouteUpdateRequest,
-}
-from "../types";
-import { RouteCard } from "../components/RouteCard";
-import { TenantGate } from "@/tenant";
-import {
-    StatsGrid,
-    SearchFilterBar,
-    EmptyState,
-    EntityModal
-} from "@/components";
+} from "../types";
+import { RouteCard }           from "../components/RouteCard";
+import { RouteForm }           from "../components/RouteForm";
+import type { RouteFormData }  from "../components/RouteForm";
 
-import { RouteForm } from "../components/RouteForm";
-import type { RouteFormData } from "../components/RouteForm";
-// ─────────────────────────────────────────────────────────────────────────────
+// =============================================================================
 // Types
-// ─────────────────────────────────────────────────────────────────────────────
- 
+// =============================================================================
+
 type FilterStatus = "all" | "active" | "inactive";
 
 const RoutesListPage: React.FC = () => {
     const { hasRole } = useAuth();
- 
+
     // ── Role flags ────────────────────────────────────────────────────────────
     const isSuperAdmin  = hasRole("SUPER_ADMIN");
     const isSchoolAdmin = hasRole("SCHOOL_ADMIN");
     const isBranchAdmin = hasRole("BRANCH_ADMIN");
-
     const canEdit       = isSuperAdmin || isSchoolAdmin || isBranchAdmin;
 
-     
-    // ── Tenant gate ───────────────────────────────────────────────────────────
     const gate = useTenantGate();
- 
+
     // ── Search / filter / pagination ──────────────────────────────────────────
     const [search,       setSearch]       = useState("");
     const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
@@ -66,11 +68,11 @@ const RoutesListPage: React.FC = () => {
     const routeModal                          = useEntityModal<RouteResponse>();
     const [confirmRoute, setConfirmRoute]     = useState<RouteResponse | null>(null);
 
-    // ── Routes query ──────────────────────────────────────────────────────────
-    // Both resolved IDs are in the queryKey — any selector change fires a new
-    // fetch automatically with the correct tenant scope.
-    // Non-null assertions in the queryFn are safe because the query is disabled
-    // until gate.scopeReady is true, which guarantees both IDs are defined.
+    // ── Routes query ────────────────────────────────────────────────────────
+    //
+    // The backend requires BOTH school_id and branch_id as query params.
+    // Non-null assertions are safe because the query is disabled until
+    // gate.scopeReady is true, guaranteeing both ids are defined.
     const { data, isLoading } = useQuery({
         queryKey: [
             "routes",
@@ -87,22 +89,21 @@ const RoutesListPage: React.FC = () => {
             getRoutes({
                 school_id  : gate.resolvedSchoolId!,
                 branch_id  : gate.resolvedBranchId!,
+                active_only: activeOnly,
                 page,
                 page_size  : pageSize,
-                active_only: activeOnly,
-                search     : debouncedSearch || undefined,
             }),
         enabled  : gate.scopeReady,
         staleTime: 30_000,
     });
- 
+
     const allRoutes     = data?.items ?? [];
     const total         = data?.total  ?? 0;
     const totalPages    = data?.pages  ?? 1;
     const activeCount   = allRoutes.filter((r: RouteResponse) =>  r.is_active).length;
     const inactiveCount = allRoutes.filter((r: RouteResponse) => !r.is_active).length;
 
-    // Client-side inactive filter (backend has no inactive_only param)
+    // Client-side search filter (backend list endpoint has no search param)
     const routes = allRoutes.filter((r: RouteResponse) => {
         const matchesSearch = debouncedSearch
             ? r.route_name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -114,7 +115,7 @@ const RoutesListPage: React.FC = () => {
             true;
         return matchesSearch && matchesStatus;
     });
- 
+
     // ── Mutations ─────────────────────────────────────────────────────────────
     const {
         createMutation,
@@ -122,54 +123,73 @@ const RoutesListPage: React.FC = () => {
         toggleMutation,
         isLoading: isMutating,
     } = useEntityMutation<RouteResponse, RouteCreateRequest, RouteUpdateRequest>({
-        entityName: "Route",
-        queryKey  : ["routes"],
-        createFn  : createRoute,
-        updateFn  : updateRoute,
-        toggleFn  : deactivateRoute,
+        entityName : "Route",
+        queryKey   : ["routes"],
+        createFn   : createRoute,
+        /**
+         * updateFn receives (id, data) — but our updateRoute API also needs
+         * school_id + branch_id as query params. We wrap it here so the hook
+         * stays generic.
+         */
+        updateFn   : (id, data) =>
+            updateRoute(id, gate.resolvedSchoolId!, gate.resolvedBranchId!, data),
+        /**
+         * toggleFn (deactivate) also needs school_id + branch_id.
+         */
+        toggleFn   : (route) =>
+            route.is_active
+                ? deactivateRoute(
+                    route.route_id,
+                    {
+                        school_id: gate.resolvedSchoolId!,
+                        branch_id: gate.resolvedBranchId!
+                    })
+                : reactivateRoute(
+                    route.route_id,
+                    {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
         getEntityId: (r) => r.route_id,
+        getEntityName  : (r)=> r.route_name,
         onCreateSuccess: () => routeModal.close(),
         onUpdateSuccess: () => routeModal.close(),
         onToggleSuccess: () => setConfirmRoute(null),
     });
 
     // ── Submit handler ────────────────────────────────────────────────────────
- 
+
     /**
      * Unified create + edit handler.
-     * On create: tenant IDs are injected from gate so RouteForm stays
-     * completely tenant-agnostic.
+     * On create: school_id + branch_id are injected from gate so RouteForm
+     * stays completely tenant-agnostic.
      */
-    const handleSubmit = async (formData: RouteFormData) => {
+    const handleSubmit = async (formData: RouteFormData): Promise<void> => {
         if (routeModal.isEdit && routeModal.item) {
             await updateMutation.mutateAsync({
                 entity: routeModal.item,
                 data  : {
-                    route_code: formData.route_code,
-                    route_name: formData.route_name,
-                    is_active : formData.is_active,
+                    route_name      : formData.route_name,
+                    route_code      : formData.route_code,
+                    is_active       : formData.is_active,
                 },
             });
         } else {
             await createMutation.mutateAsync({
-                school_id : gate.resolvedSchoolId!,
-                branch_id : gate.resolvedBranchId!,
-                route_code: formData.route_code,
-                route_name: formData.route_name,
+                school_id       : gate.resolvedSchoolId!,
+                branch_id       : gate.resolvedBranchId!,
+                route_name      : formData.route_name,
+                route_code      : formData.route_code,
             });
         }
     };
 
     // ── Create guard ──────────────────────────────────────────────────────────
-    const handleOpenCreate = () => {
+    const handleOpenCreate = (): void => {
         if (!gate.scopeReady) {
             toast.error("Please select a school and branch first.");
             return;
         }
         routeModal.openCreate();
     };
- 
-    return(
+    return (
         <div className="mx-auto flex max-w-7xl flex-col gap-5">
             {/* ── Page header ──────────────────────────────────────────────── */}
             <div className="flex items-center justify-between">
@@ -179,24 +199,29 @@ const RoutesListPage: React.FC = () => {
                     </h1>
                     <p className="mt-0.5 text-sm text-slate-400">
                         {isSuperAdmin
-                            ? "Select a school and branch, then manage its routes."
+                            ? "Select a School and Branch, then manage its Routes."
                             : isSchoolAdmin
-                                ? "Select a branch to view and manage its routes."
-                                : "Manage routes for your branch."
+                                ? "Select a Branch to view and manage its Route."
+                                : "Manage Routes for your branch."
                         }
                     </p>
                 </div>
+
                 {canEdit && (
                     <button
                         type="button"
                         onClick={handleOpenCreate}
                         disabled={!gate.scopeReady}
-                        title={gate.scopeReady ? undefined : "Select a school and branch first"}
+                        title={
+                            gate.scopeReady
+                                ? undefined
+                                : "Select a School and Branch first"
+                        }
                         className={[
                             "inline-flex items-center gap-2 rounded-xl px-5 py-2.5",
                             "text-sm font-semibold text-white shadow-sm transition-colors",
                             gate.scopeReady
-                                ? "bg-indigo-500 hover:bg-indigo-600"
+                                ? "bg-blue-500 hover:bg-blue-600"
                                 : "cursor-not-allowed bg-slate-300",
                         ].join(" ")}
                     >
@@ -208,19 +233,19 @@ const RoutesListPage: React.FC = () => {
 
             {/* ── Tenant gate ───────────────────────────────────────────────── */}
             <TenantGate gate={gate} />
-                        {/* ── Scope prompt or page content ─────────────────────────────── */}
+            {/* ── Scope prompt or page content ─────────────────────────────── */}
             {!gate.scopeReady ? (
                 <EmptyState
-                    icon={<RouteIcon size={24} className="text-indigo-400" />}
+                    icon={<Users size={24} className="text-blue-400" />}
                     title={
                         gate.resolvedSchoolId
-                            ? "Select a branch to continue"
-                            : "Select a school to continue"
+                            ? "Select a Branch to continue"
+                            : "Select a School to continue"
                     }
                     description={
                         gate.resolvedSchoolId
-                            ? "Pick a branch above to view and manage its routes."
-                            : "Pick a school first, then choose a branch."
+                            ? "Pick a Branch above to view and manage its Routes."
+                            : "Pick a School first, then choose a Branch."
                     }
                     variant="scope"
                 />
@@ -229,16 +254,16 @@ const RoutesListPage: React.FC = () => {
                     {/* ── Stat pills ─────────────────────────────────────── */}
                     <StatsGrid
                         items={[
-                            { value: total,         label: "Total Routes"              },
-                            { value: activeCount,   label: "Active",   color: "green"  },
-                            { value: inactiveCount, label: "Inactive", color: "slate"  },
+                            { value: total,         label: "Total Routes"             },
+                            { value: activeCount,   label: "Active",   color: "green"   },
+                            { value: inactiveCount, label: "Inactive", color: "slate"   },
                         ]}
                     />
- 
+
                     {/* ── Search + filter ────────────────────────────────── */}
                     <SearchFilterBar
                         search={search}
-                        placeholder="Search by code or name…"
+                        placeholder="Search by Route Name or Route Code"
                         onSearchChange={(val) => { setSearch(val); setPage(1); }}
                         filters={[
                             { label: "All",      value: "all"      },
@@ -251,17 +276,20 @@ const RoutesListPage: React.FC = () => {
                             setPage(1);
                         }}
                     />
- 
+
                     {/* ── Cards ──────────────────────────────────────────── */}
                     {isLoading ? (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="h-52 animate-pulse rounded-2xl bg-slate-100" />
+                                <div
+                                    key={i}
+                                    className="h-56 animate-pulse rounded-2xl bg-slate-100"
+                                />
                             ))}
                         </div>
                     ) : routes.length === 0 ? (
                         <EmptyState
-                            emoji={debouncedSearch ? "🔍" : "🗺️"}
+                            emoji={debouncedSearch ? "🔍" : "🎓"}
                             title={
                                 debouncedSearch
                                     ? `No results for "${debouncedSearch}"`
@@ -271,14 +299,17 @@ const RoutesListPage: React.FC = () => {
                             }
                             description={
                                 debouncedSearch
-                                    ? "Try a different search term or clear the filter."
+                                    ? "Try a different search term or clear the filter"
                                     : filterStatus !== "all"
-                                        ? `Switch the filter to "All" to see all routes.`
-                                        : "Create the first route for this branch."
+                                        ? `There are no routes marked as inactive at this time.`
+                                        : "Add the first route for this branch."
                             }
                             action={
                                 !debouncedSearch && filterStatus === "all" && canEdit
-                                    ? { label: "Add your first route", onClick: handleOpenCreate }
+                                    ? {
+                                        label  : "Add your first route",
+                                        onClick: handleOpenCreate,
+                                    }
                                     : undefined
                             }
                         />
@@ -296,28 +327,44 @@ const RoutesListPage: React.FC = () => {
                             ))}
                         </div>
                     )}
- 
                     {/* ── Pagination ─────────────────────────────────────── */}
-                    {/*
-                    <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        total={total}
-                        pageSize={pageSize}
-                        pageSizeOptions={[10, 15, 30, 50]}
-                        entityLabel="route"
-                        onPageChange={setPage}
-                        onPageSizeChange={setPageSize}
-                    />
-                    */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-3.5">
+                            <p className="text-xs text-slate-400">
+                                Page {page} of {totalPages} · {total} routes
+                            </p>
+                            <div className="flex gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setPage(page - 1)}
+                                    disabled={page <= 1}
+                                    className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPage(page + 1)}
+                                    disabled={page >= totalPages}
+                                    className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
-                        {/* ── Create / Edit modal ────────────────────────────────────────── */}
+            {/* ── Create / Edit modal ────────────────────────────────────────── */}
             <EntityModal
                 open={routeModal.open}
                 mode={routeModal.mode}
                 entityName="Route"
-                itemName={routeModal.item?.route_name}
+                itemName={
+                    routeModal.item
+                        ? routeModal.item.route_name
+                        : undefined
+                }
                 onClose={routeModal.close}
                 size="md"
                 createSubtitle="Enter a unique route code and a descriptive name"
@@ -329,19 +376,24 @@ const RoutesListPage: React.FC = () => {
                     isLoading={isMutating}
                 />
             </EntityModal>
- 
             {/* ── Confirm status toggle ──────────────────────────────────────── */}
             <EntityStatusConfirmModal
                 open={!!confirmRoute}
                 entity={confirmRoute}
                 entityName="Route"
-                entityLabel={confirmRoute?.route_name ?? ""}
+                entityLabel={
+                    confirmRoute
+                        ? confirmRoute.route_name
+                        : ""
+                }
                 isLoading={toggleMutation.isPending}
-                onConfirm={() => confirmRoute && toggleMutation.mutate(confirmRoute)}
+                onConfirm={() =>
+                    confirmRoute && toggleMutation.mutate(confirmRoute)
+                }
                 onCancel={() => setConfirmRoute(null)}
             />
         </div>
-    )
+    );
 };
 
 export default RoutesListPage;
