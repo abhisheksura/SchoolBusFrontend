@@ -7,13 +7,14 @@
 //   2. Import and spread it here — nothing else needs to change.
 
 import { dashboardRoutes }    from "@/modules/dashboard/routes";
-import { busRoutes }          from "@/modules/buses/routes";
+import { busRoutes }          from "@/features/buses/routes";
 import { userRoutes }         from "@/features/users/routes";
 import { schoolRoutes }       from "@/modules/schools/routes";
 import { routeRoutes }        from "@/features/routes/routes";
 import { tripRoutes }         from "@/features/trips/routes";
 import { assignmentRoutes }   from "@/features/assignments/routes";
-/*import { trackingRoutes }     from "@/modules/tracking/routes";
+/*
+import { trackingRoutes }     from "@/modules/tracking/routes";
 import { attendanceRoutes }   from "@/modules/attendance/routes";
 import { notificationRoutes } from "@/modules/notifications/routes";
 */
