@@ -33,7 +33,7 @@ import {
 import { TenantGate }               from "@/tenant";
 import { getRoutes }                from "@/features/routes/api";
 import { getBuses }                 from "@/modules/buses/api";
-import { getDrivers }               from "@/modules/users/api";
+import { getDrivers }               from "@/features/users/api";
 import {
     getTrips,
     createTrip,

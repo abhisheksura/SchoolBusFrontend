@@ -20,7 +20,7 @@ import { useQuery }   from "@tanstack/react-query";
 
 import { SubmitButton, CancelButton } from "@/components";
 import { getRoutes }                  from "@/features/routes/api";
-import { getDrivers }                 from "@/modules/users/api";
+import { getDrivers }                 from "@/features/users/api";
 import { getBuses }                   from "@/modules/buses/api";
 import type { TripCreateRequest }     from "../types";
 
