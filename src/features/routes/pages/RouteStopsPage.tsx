@@ -566,9 +566,9 @@ const RouteStopsPage: React.FC = () => {
         isLoading: routeLoading,
         isError  : routeError,
     } = useQuery({
-        queryKey: ["routes", "detail", parsedRouteId],
-        queryFn : () => getRoute(parsedRouteId),
-        enabled : !!parsedRouteId,
+        queryKey: ["routes", "detail", parsedRouteId, parsedSchoolId, parsedBranchId],
+        queryFn : () => getRoute(parsedRouteId, parsedSchoolId, parsedBranchId),
+        enabled : !!parsedRouteId && !!parsedSchoolId && !!parsedBranchId,
         staleTime: 60_000,
     });
 

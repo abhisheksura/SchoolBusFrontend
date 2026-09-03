@@ -31,10 +31,10 @@ export const userRoutes: RouteConfig[] = [
         order       : 1,
     },
         // Not in the sidebar — accessed by clicking a RouteCard.
-    {
+    /*{
         path        : "/routes/:routeId/stops",
         element     : StudentsListPage,
         roles       : ["SCHOOL_ADMIN", "BRANCH_ADMIN"],
         showInSidebar: false,
-    },
+    },*/
 ];

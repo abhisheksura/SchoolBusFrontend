@@ -22,8 +22,20 @@ export const getRoutes = async (
 };
 
 /** Fetch a single route by primary key (no stop data). */
-export const getRoute = async (routeId: number): Promise<RouteResponse> => {
-    const { data } = await apiClient.get<RouteResponse>(`/routes/${routeId}`);
+export const getRoute = async (
+    routeId: number,
+    schoolId: number,
+    branchId: number
+): Promise<RouteResponse> => {
+    const { data } = await apiClient.get<RouteResponse>(
+        `/routes/${routeId}`,
+        {
+            params: {
+                school_id: schoolId,
+                branch_id: branchId
+            }
+        },
+    );
     return data;
 };
 

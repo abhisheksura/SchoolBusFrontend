@@ -16,7 +16,7 @@ export const routeRoutes: RouteConfig[] = [
         showInSidebar: true,
         icon: "MapPin",
         label: "Stops",
-        group: "operations",
+        group: "fleet",
         order: 1,
     },
     {
@@ -26,7 +26,7 @@ export const routeRoutes: RouteConfig[] = [
         showInSidebar: true,
         icon: "Route",
         label: "Routes",
-        group: "operations",
+        group: "fleet",
         order: 2,
     },
     // ── Route detail (stops management) ─────────────────────────────────────
