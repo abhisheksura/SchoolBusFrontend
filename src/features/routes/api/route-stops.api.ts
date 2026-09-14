@@ -81,7 +81,14 @@ export const removeStopFromRoute = async (routeStopId: number): Promise<void> =>
  */
 export const reorderRouteStops = async (
     routeId: number,
+    schoolId: number,
+    branchId: number,
     payload: RouteStopReorderRequest,
-): Promise<void> => {
-    await apiClient.post(`/routes/${routeId}/reorder-stops`, payload);
+): Promise<RouteStop[]> => {
+    const { data } = await apiClient.post<RouteStop[]>(
+        `/routes/${routeId}/reorder-stops`,
+        payload,
+        { params: { school_id: schoolId, branch_id: branchId } },
+    );
+    return data;
 };

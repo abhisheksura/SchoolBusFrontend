@@ -691,12 +691,15 @@ const RouteStopsPage: React.FC = () => {
             tripType: TripType;
             newOrder: RouteStop[];
         }) =>
-            reorderRouteStops(parsedRouteId, {
-                stop_type     : tripType,
-                stop_ids: newOrder.map((s) => s.route_stop_id),
-            }),
+            reorderRouteStops(parsedRouteId,
+                parsedSchoolId, parsedBranchId,
+                {
+                    stop_type     : tripType,
+                    stop_ids: newOrder.map((s) => s.route_stop_id),
+                }
+            ),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["route-stops", parsedRouteId] });
+            queryClient.invalidateQueries({ queryKey: ["route-stops", parsedRouteId, parsedSchoolId, parsedBranchId] });
         },
         onError: (err: any) =>
             toast.error(err.response?.data?.detail || "Failed to save new order"),

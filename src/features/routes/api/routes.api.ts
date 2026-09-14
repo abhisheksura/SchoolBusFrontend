@@ -8,6 +8,8 @@ import type {
     RouteCreateRequest,
     RouteUpdateRequest,
     RouteFilters,
+    RouteStop,
+    RouteStopReorderRequest
 } from "../types";
 import type { TenantScopeRequest } from "@/tenant";
 
