@@ -26,7 +26,7 @@ interface EntityModalProps {
 
     entityName: string;
 
-    itemName?: string;
+    itemName?: string | number;
 
     onClose: () => void;
 

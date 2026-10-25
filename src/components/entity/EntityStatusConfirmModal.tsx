@@ -7,7 +7,7 @@ interface Props<T extends { is_active: boolean }> {
     entity: T | null;
 
     entityName: string;
-    entityLabel: string;
+    entityLabel: string | number;
     
     isLoading?: boolean;
 

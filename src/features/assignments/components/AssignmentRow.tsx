@@ -15,7 +15,17 @@
 // fires the onRemove callback.
 
 import React                    from "react";
-import { Trash2, MapPin, Route } from "lucide-react";
+import {
+    Trash2,
+    MapPin,
+    Route,
+    Phone,
+    ArrowUpCircle,
+    ArrowDownCircle,
+    Bus,
+    Calendar,
+    User,
+} from "lucide-react";
 import { StatusBadge }           from "@/components";
 import { formatDate }            from "@/core/utils/formatters";
 import type { AssignmentResponse, AssignmentType } from "../types";
@@ -27,8 +37,6 @@ import type { AssignmentResponse, AssignmentType } from "../types";
 export interface AssignmentRowProps {
     assignment : AssignmentResponse;
 
-    /** Human-readable student name — resolved by parent from cache. */
-    studentName: string;
     /** Human-readable route name — resolved by parent from cache. */
     routeName  : string;
     /** Human-readable stop name — resolved by parent from cache. */
@@ -72,90 +80,121 @@ const TYPE_LABELS: Record<AssignmentType, string> = {
  * Intentionally stateless — all data is resolved by the parent.
  * Remove confirmation lives in the parent page (AssignmentsPage).
  */
+
 export const AssignmentRow: React.FC<AssignmentRowProps> = ({
     assignment,
-    studentName,
     routeName,
     stopName,
-    viewMode,
     canEdit,
     onRemove,
 }) => {
     const tripType = assignment.assignment_type as AssignmentType;
-    const styles   = TYPE_STYLES[tripType];
+    const styles = TYPE_STYLES[tripType];
 
-    // Which label goes at the top vs the secondary line
-    const primaryLabel   = viewMode === "by_student" ? routeName  : studentName;
-    const primaryIcon    = viewMode === "by_student"
-        ? <Route size={12} className="shrink-0 text-indigo-400" />
-        : null;
+    const isPickup = tripType === "PICKUP";
+
+    // Replace these with actual values from your API
+    const studentName   = [assignment.student.first_name, assignment.student.last_name]
+        .filter(Boolean)
+        .join(" ");    const grade = assignment.student?.grade ?? "Grade 5";
+    const section = assignment.student?.section ?? "A";
+    const phone = assignment.student?.parent_phone ?? "98XXXX1234";
+    const admissionNumber = assignment.student.admission_number
 
     return (
         <div
             className={[
-                "flex items-center gap-4 rounded-xl border bg-white px-4 py-3.5 shadow-sm",
-                "transition-colors duration-150",
+                "grid items-center gap-5",
+                "grid-cols-[minmax(280px,2fr)_160px_minmax(220px,1.5fr)_120px_90px_48px]",
+                "rounded-xl border border-slate-200 bg-white",
+                "px-4 py-3",
+                "transition-all duration-200",
                 assignment.is_active
-                    ? "border-slate-200 hover:border-slate-300"
-                    : "border-slate-100 opacity-60",
+                    ? "hover:border-indigo-200 hover:bg-slate-50"
+                    : "opacity-60",
             ].join(" ")}
         >
-            {/* ── Trip type badge ────────────────────────────────── */}
-            <span
-                className={[
-                    "inline-flex shrink-0 items-center gap-1.5",
-                    "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                    styles.badge,
-                ].join(" ")}
-            >
-                <span className={`h-1.5 w-1.5 rounded-full ${styles.dot}`} />
-                {TYPE_LABELS[tripType]}
-            </span>
-
-            {/* ── Main info ──────────────────────────────────────── */}
-            <div className="flex flex-1 flex-col min-w-0 gap-0.5">
-                {/* Primary label — route name (by student) or student name (by route) */}
-                <div className="flex items-center gap-1.5 min-w-0">
-                    {primaryIcon}
-                    <p className="truncate text-sm font-semibold text-slate-800">
-                        {primaryLabel}
-                    </p>
+            {/* Student */}
+            <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                    {studentName.charAt(0).toUpperCase()}
                 </div>
 
-                {/* Stop name + assigned date */}
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex items-center gap-1 text-xs text-slate-400 truncate">
-                        <MapPin size={10} className="shrink-0" />
-                        <span className="truncate">{stopName}</span>
-                    </div>
-                    <span className="shrink-0 text-[10px] text-slate-300">·</span>
-                    <span className="shrink-0 text-[10px] text-slate-400">
-                        {formatDate(assignment.assigned_at)}
-                    </span>
+                <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                        {studentName}
+                    </p>
+
+                    <p className="truncate text-xs text-slate-500">
+                        {admissionNumber} - {grade}-{section}
+                    </p>
                 </div>
             </div>
 
-            {/* ── Status ─────────────────────────────────────────── */}
+            <div className="flex items-center gap-2.5 min-w-0">
+                <Phone
+                    size={14}
+                    className="shrink-0 text-slate-400"
+                />
+                <span className="truncate text-sm text-slate-700">
+                    {phone}
+                </span>
+            </div>
+
+            {/* Stop */}
+            <div className="flex items-center gap-2 min-w-0">
+                <MapPin
+                    size={16}
+                    className="shrink-0 text-emerald-500"
+                />
+
+                <span className="truncate text-sm text-slate-700">
+                    {stopName}
+                </span>
+            </div>
+
+            {/* Trip */}
+            <div>
+                <span
+                    className={[
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
+                        styles.badge,
+                    ].join(" ")}
+                >
+                    {isPickup ? (
+                        <ArrowUpCircle size={14} />
+                    ) : (
+                        <ArrowDownCircle size={14} />
+                    )}
+
+                    {TYPE_LABELS[tripType]}
+                </span>
+            </div>
+
+            {/* Status */}
             <StatusBadge active={assignment.is_active} />
 
-            {/* ── Remove button ──────────────────────────────────── */}
-            {canEdit && assignment.is_active && (
-                <button
-                    type="button"
-                    onClick={() => onRemove(assignment)}
-                    title="Remove assignment"
-                    className={[
-                        "shrink-0 flex h-7 w-7 items-center justify-center",
-                        "rounded-lg text-slate-300 transition-colors",
-                        "hover:bg-red-50 hover:text-red-500",
-                    ].join(" ")}
-                    aria-label={`Remove ${TYPE_LABELS[tripType]} assignment`}
-                >
-                    <Trash2 size={14} strokeWidth={2} />
-                </button>
-            )}
+            {/* Actions */}
+            <div className="flex justify-end">
+                {canEdit && assignment.is_active && (
+                    <button
+                        type="button"
+                        onClick={() => onRemove(assignment)}
+                        className="
+                            rounded-lg
+                            p-2
+                            text-slate-400
+                            transition-colors
+                            hover:bg-red-50
+                            hover:text-red-600
+                        "
+                        aria-label="Remove assignment"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                )}
+            </div>
         </div>
     );
-};
-
+}
 export default AssignmentRow;

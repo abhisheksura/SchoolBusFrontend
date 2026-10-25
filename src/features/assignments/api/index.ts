@@ -2,7 +2,9 @@
 
 export {
     createAssignment,
-    deactivateAssignment
+    updateAssignment,
+    deactivateAssignment,
+    reactivateAssignment
 } from './assignments.api';
 
 export {

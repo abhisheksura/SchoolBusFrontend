@@ -10,6 +10,7 @@
 //   • There is no update endpoint — assignments are either active or deactivated.
 //   • Deactivation is soft-delete: is_active = false.
 //   • school_id + branch_id are required on every read and write.
+import type { StudentSummary } from "@/features/users/types/students.types";
 
 export type AssignmentType = "PICKUP" | "DROPOFF";
 
@@ -22,12 +23,17 @@ export interface AssignmentResponse {
     school_id      : number;
     branch_id      : number;
     student_id     : number;
+    student        : StudentSummary;
+    school_name    : string;   // denormalised
+    branch_name    : string;   // denormalised
     route_id       : number;
     stop_id        : number;
     assignment_type: AssignmentType;
     is_active      : boolean;
     assigned_at    : string;   // ISO-8601
     updated_at     : string;
+    route_name     : string;   // resolved from routes cache
+    stop_name      : string;
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +67,13 @@ export interface StudentAssignmentFilters {
     school_id  : number;
     branch_id  : number;
     active_only?: boolean;
+}
+
+export interface AssignmentUpdateRequest {
+    student_id     : number;
+    route_id       : number;
+    stop_id        : number;
+    assignment_type: AssignmentType;
 }
 
 /**

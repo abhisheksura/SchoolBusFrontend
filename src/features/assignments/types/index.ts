@@ -5,6 +5,7 @@ export type {
     AssignmentType,
     AssignmentResponse,
     AssignmentCreateRequest,
+    AssignmentUpdateRequest,
     StudentAssignmentFilters,
     RouteAssignmentFilters,
     AssignmentWithDetails,

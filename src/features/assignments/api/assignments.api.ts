@@ -1,4 +1,4 @@
-// src/features/assignments/api/index.ts
+// src/features/assignments/api/assignments.ts
 //
 // All HTTP calls for the Assignments domain.
 //
@@ -18,7 +18,9 @@ import { apiClient }             from "@/core";
 import type {
     AssignmentResponse,
     AssignmentCreateRequest,
+    AssignmentUpdateRequest,
 } from "../types";
+import type { TenantScopeRequest } from "@/tenant"
 
 // ---------------------------------------------------------------------------
 // Create
@@ -42,6 +44,19 @@ export const createAssignment = async (
     return data;
 };
 
+export const updateAssignment = async (
+    assignmentId    : number,
+    schoolId : number,
+    branchId : number,
+    payload  : AssignmentUpdateRequest,
+): Promise<AssignmentResponse> => {
+    const { data } = await apiClient.patch<AssignmentResponse>(
+        `/assignments/${assignmentId}`,
+        payload,
+        { params: { school_id: schoolId, branch_id: branchId } },
+    );
+    return data;
+};
 // ---------------------------------------------------------------------------
 // Deactivate (soft-delete)
 // ---------------------------------------------------------------------------
@@ -57,14 +72,25 @@ export const createAssignment = async (
  * @param schoolId     — Required for tenant-scoped access check.
  * @param branchId     — Required for tenant-scoped access check.
  */
+
 export const deactivateAssignment = async (
     assignmentId: number,
-    schoolId    : number,
-    branchId    : number,
+    scope: TenantScopeRequest
 ): Promise<AssignmentResponse> => {
-    const { data } = await apiClient.delete<AssignmentResponse>(
-        `/assignments/${assignmentId}`,
-        { params: { school_id: schoolId, branch_id: branchId } },
+    const { data } = await apiClient.patch<AssignmentResponse>(
+        `/assignments/${assignmentId}/deactivate`,
+        scope,
+    );
+    return data;
+};
+
+export const reactivateAssignment = async (
+    assignmentId: number,
+    scope: TenantScopeRequest
+): Promise<AssignmentResponse> => {
+    const { data } = await apiClient.patch<AssignmentResponse>(
+        `/assignments/${assignmentId}/reactivate`,
+        scope,
     );
     return data;
 };

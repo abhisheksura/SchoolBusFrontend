@@ -32,7 +32,7 @@ import { SubmitButton, CancelButton } from "@/components";
 import { getStudents }                from "@/features/users/api";
 import { getRoutes }                  from "@/features/routes/api";
 import { getStops }                   from "@/features/routes/api";
-import type { AssignmentCreateRequest, AssignmentType } from "../types";
+import type { AssignmentCreateRequest, AssignmentResponse, AssignmentType } from "../types";
 
 // =============================================================================
 // Zod schema — mirrors backend StudentRouteAssignmentCreate exactly
@@ -116,6 +116,24 @@ const LABEL =
  * The user never sees or edits these — they are a backend constraint, not
  * a user input.
  */
+
+interface AssignmentFormNewProps {
+    assignment ?: AssignmentResponse;
+    onSubmit   : (data: AssignmentFormData) => Promise<void>;
+    onCancel   : () => void;
+    isLoading ?: boolean;
+}
+
+export const AssignmentFormNew: React.FC<AssignmentFormNewProps> = ({
+    assignment,
+    onSubmit,
+    onCancel,
+    isLoading = false,
+}) => {
+    return (<div>{assignment?.assignment_id}</div>);
+}
+
+
 export const AssignmentForm: React.FC<AssignmentFormProps> = ({
     schoolId,
     branchId,
