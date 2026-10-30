@@ -19,6 +19,17 @@ export interface StudentResponse {
     created_at      : string;   // ISO-8601
     updated_at      : string;
 }
+
+export interface StudentSummary {
+    student_id: number;
+    first_name      : string;
+    last_name       : string | null;
+    admission_number: string | null;
+    grade           : string | null;
+    section         : string | null;
+    parent_name?: string;
+    parent_phone?: string;
+}
  
 /**
  * POST /students/students/

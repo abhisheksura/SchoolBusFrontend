@@ -130,20 +130,7 @@ export interface RouteWithStops extends RouteResponse {
     total_stops  : number;
 }
 
-/** POST /routes — tenant fields required. */
-export interface RouteCreateRequest {
-    school_id : number;
-    branch_id : number;
-    route_code: string;
-    route_name: string;
-}
 
-/** PUT /routes/:id — tenant fields excluded. */
-export interface RouteUpdateRequest {
-    route_code?: string;
-    route_name?: string;
-    is_active ?: boolean;
-}
 
 /** Query params for GET /routes */
 export interface RouteFilters {
