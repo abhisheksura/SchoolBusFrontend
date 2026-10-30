@@ -7,7 +7,8 @@ import { Plus, Users }           from "lucide-react";
 import { toast }                 from "sonner";
 
 import { TenantGate }            from "@/tenant";
-import { getRoutes }             from "@/features/routes/api";
+import { getRoutes, getRouteWithStops }             from "@/features/routes/api";
+import { getStudents }           from "@/features/users/api";
 import { StudentCard }           from "@/features/users/components/StudentCard";
 import { useDebounce, usePagination } from "@/core";
 
@@ -35,7 +36,7 @@ import type {
     AssignmentUpdateRequest
 } from "../types";
 import { AssignmentRow } from "../components/AssignmentRow";
-import { AssignmentForm, AssignmentFormNew, type AssignmentFormData } from "../components/AssignmentForm";
+import { AssignmentFormNew, type AssignmentFormData } from "../components/AssignmentForm";
 
 type FilterStatus = "all" | "active" | "inactive";
 
@@ -110,6 +111,44 @@ const AssignmentsPage: React.FC = () => {
             }),
         enabled  : !!selectedRouteId && gate.scopeReady,
         staleTime: 30_000,
+    });
+
+    // ── Assignment form dropdown data (scoped to school + branch) ─────────────
+    // The form is tenant-agnostic, so the page loads everything it renders.
+    // Queries only run while the modal is open.
+    const [formRouteId, setFormRouteId] = useState<number | undefined>(undefined);
+
+    const { data: formStudentsData, isLoading: formStudentsLoading } = useQuery({
+        queryKey : ["students", "dropdown", { schoolId: gate.resolvedSchoolId, branchId: gate.resolvedBranchId }],
+        queryFn  : () =>
+            getStudents({
+                school_id  : gate.resolvedSchoolId!,
+                branch_id  : gate.resolvedBranchId!,
+                active_only: true,
+            }),
+        enabled  : assignmentModal.open && gate.scopeReady,
+        staleTime: 60_000,
+    });
+
+    const { data: formRoutesData, isLoading: formRoutesLoading } = useQuery({
+        queryKey : ["routes", "dropdown", "form", { schoolId: gate.resolvedSchoolId, branchId: gate.resolvedBranchId }],
+        queryFn  : () =>
+            getRoutes({
+                school_id  : gate.resolvedSchoolId!,
+                branch_id  : gate.resolvedBranchId!,
+                active_only: true,
+                //page_size  : 200,
+            }),
+        enabled  : assignmentModal.open && gate.scopeReady,
+        staleTime: 60_000,
+    });
+
+    const { data: formStopsData, isLoading: formStopsLoading } = useQuery({
+        queryKey : ["route-stops", formRouteId, { schoolId: gate.resolvedSchoolId, branchId: gate.resolvedBranchId }],
+        queryFn  : () =>
+            getRouteWithStops(formRouteId!, gate.resolvedSchoolId!, gate.resolvedBranchId!),
+        enabled  : assignmentModal.open && gate.scopeReady && formRouteId !== undefined,
+        staleTime: 60_000,
     });
 
     const allStudents   = data?.items ?? [];
@@ -466,6 +505,13 @@ const AssignmentsPage: React.FC = () => {
             >
                 <AssignmentFormNew
                     assignment={assignmentModal.item ?? undefined}
+                    students={formStudentsData?.items ?? []}
+                    routes={formRoutesData?.items ?? []}
+                    stops={formStopsData ?? []}
+                    studentsLoading={formStudentsLoading}
+                    routesLoading={formRoutesLoading}
+                    stopsLoading={formStopsLoading && formRouteId !== undefined}
+                    onRouteChange={setFormRouteId}
                     onSubmit={handleSubmit}
                     onCancel={assignmentModal.close}
                     isLoading={isMutating}
