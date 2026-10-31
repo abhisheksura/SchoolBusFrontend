@@ -27,8 +27,8 @@ export interface StudentSummary {
     admission_number: string | null;
     grade           : string | null;
     section         : string | null;
-    parent_name?: string;
-    parent_phone?: string;
+    parent_name    ?: string | null;
+    parent_phone   ?: string | null;
 }
  
 /**

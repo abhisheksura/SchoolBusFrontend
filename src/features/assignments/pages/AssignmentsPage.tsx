@@ -36,7 +36,7 @@ import type {
     AssignmentUpdateRequest
 } from "../types";
 import { AssignmentRow } from "../components/AssignmentRow";
-import { AssignmentFormNew, type AssignmentFormData } from "../components/AssignmentForm";
+import { AssignmentForm, type AssignmentFormData } from "../components/AssignmentForm";
 
 type FilterStatus = "all" | "active" | "inactive";
 
@@ -59,7 +59,7 @@ const AssignmentsPage: React.FC = () => {
 
     const [selectedRouteId,   setSelectedRouteId]   = useState<number | undefined>(undefined);
     const [routeTypeTab,      setRouteTypeTab]      = useState<AssignmentType>("PICKUP");
-    
+
     const { page, pageSize, setPage, setPageSize } = usePagination(15);
 
     const activeOnly: boolean | undefined =
@@ -70,7 +70,6 @@ const AssignmentsPage: React.FC = () => {
     // ── Modals ────────────────────────────────────────────────────────────────
     const assignmentModal                           = useEntityModal<AssignmentResponse>();
     const [confirmAssignment, setConfirmAssignment] = useState<AssignmentResponse | null>(null);
-
 
     const { data: routesData } = useQuery({
         queryKey : ["routes", "dropdown", { schoolId: gate.resolvedSchoolId, branchId: gate.resolvedBranchId, activeOnly, pageSize }],
@@ -157,20 +156,25 @@ const AssignmentsPage: React.FC = () => {
     const activeCount   = allStudents.filter((b: AssignmentResponse) =>  b.is_active).length;
     const inactiveCount = allStudents.filter((b: AssignmentResponse) => !b.is_active).length;
 
-    const [confirmRemove,   setConfirmRemove]     = useState<AssignmentResponse | null>(null);
+    //const [confirmRemove,   setConfirmRemove]     = useState<AssignmentResponse | null>(null);
 
     // Client-side search filter (backend list endpoint has no search param)
+
     const students = allStudents.filter((a: AssignmentResponse) => {
         const matchesSearch = debouncedSearch
-            ? a.student_id
+            ? `${a.student?.first_name ?? ""} ${a.student?.last_name ?? ""}`
+                .toLowerCase()
+                .includes(debouncedSearch.toLowerCase()) ||
+            a.stop_name.toLowerCase().includes(debouncedSearch.toLowerCase())
             : true;
+
         const matchesStatus =
             filterStatus === "inactive" ? !a.is_active :
             filterStatus === "active"   ?  a.is_active :
             true;
+
         return matchesSearch && matchesStatus;
     });
-
     // ── Mutations ─────────────────────────────────────────────────────────────
     const {
         createMutation,
@@ -202,8 +206,10 @@ const AssignmentsPage: React.FC = () => {
                 : reactivateAssignment(
                     assignment.assignment_id,
                     {school_id: gate.resolvedSchoolId!, branch_id: gate.resolvedBranchId!}),
-        getEntityId: (s) => s.stop_id,
-        getEntityName  : (s)=> s.stop_name,
+        getEntityId: (a) => a.assignment_id,
+
+        // Assignments have no display name — leave it blank in toast messages.
+        getEntityName  : () => "",
         onCreateSuccess: () => assignmentModal.close(),
         onUpdateSuccess: () => assignmentModal.close(),
         onToggleSuccess: () => setConfirmAssignment(null),
@@ -256,7 +262,12 @@ const AssignmentsPage: React.FC = () => {
         setRouteTypeTab(type);
         setPage(1);
     };
-    
+
+    const handleConfirmAssignment = async (): Promise<void> => {
+        if (!confirmAssignment) return;
+
+        await toggleMutation.mutateAsync(confirmAssignment);
+    };
 
     // ==========================================================================
     // Shared SELECT style
@@ -392,7 +403,7 @@ const AssignmentsPage: React.FC = () => {
                     {/* ── Search + filter ────────────────────────────────── */}
                     <SearchFilterBar
                         search={search}
-                        placeholder="Search by Bus Number"
+                        placeholder="Search by Student or Stop"
                         onSearchChange={(val) => { setSearch(val); setPage(1); }}
                         filters={[
                             { label: "All",      value: "all"      },
@@ -454,7 +465,9 @@ const AssignmentsPage: React.FC = () => {
                                         stopName={student.stop_name}
                                         viewMode="by_route"
                                         canEdit={canEdit}
-                                        onRemove={setConfirmRemove}
+                                        onEdit={assignmentModal.openEdit}
+                                        onRemove={setConfirmAssignment}
+                                        onActivate={setConfirmAssignment}
                                     />
                                 </div>
                             ))}
@@ -501,9 +514,9 @@ const AssignmentsPage: React.FC = () => {
                 }
                 onClose={assignmentModal.close}
                 size="md"
-                createSubtitle="Enter a unique route code and a descriptive name"
+                createSubtitle="Assign a student to a route and boarding stop"
             >
-                <AssignmentFormNew
+                <AssignmentForm
                     assignment={assignmentModal.item ?? undefined}
                     students={formStudentsData?.items ?? []}
                     routes={formRoutesData?.items ?? []}
@@ -524,8 +537,8 @@ const AssignmentsPage: React.FC = () => {
                 entityName="Assignment"
                 entityLabel={
                     confirmAssignment
-                        ? confirmAssignment.assignment_id
-                        : ""
+                    ? `${confirmAssignment.student?.first_name ?? ""} ${confirmAssignment.student?.last_name ?? ""}`.trim()
+                    : ""
                 }
                 isLoading={toggleMutation.isPending}
                 onConfirm={() =>

@@ -156,7 +156,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
 // =============================================================================
 // Props
 // =============================================================================
-interface AssignmentFormNewProps {
+interface AssignmentFormProps {
     assignment ?: AssignmentResponse;
     //schoolId    : number;
     // branchId    : number;
@@ -197,7 +197,7 @@ interface AssignmentFormNewProps {
 
 
 
-export const AssignmentFormNew: React.FC<AssignmentFormNewProps> = ({
+export const AssignmentForm: React.FC<AssignmentFormProps> = ({
     assignment,
     students,
     routes,

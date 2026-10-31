@@ -16,6 +16,7 @@
 
 import React                    from "react";
 import {
+    Pencil,
     Trash2,
     MapPin,
     Route,
@@ -25,6 +26,7 @@ import {
     Bus,
     Calendar,
     User,
+    Power
 } from "lucide-react";
 import { StatusBadge }           from "@/components";
 import { formatDate }            from "@/core/utils/formatters";
@@ -46,7 +48,9 @@ export interface AssignmentRowProps {
     viewMode   : "by_student" | "by_route";
 
     canEdit    : boolean;
+    onEdit     : (assignment: AssignmentResponse) => void;
     onRemove   : (assignment: AssignmentResponse) => void;
+    onActivate: (assignment: AssignmentResponse) => void;
 }
 
 // =============================================================================
@@ -86,7 +90,9 @@ export const AssignmentRow: React.FC<AssignmentRowProps> = ({
     routeName,
     stopName,
     canEdit,
+    onEdit,
     onRemove,
+    onActivate
 }) => {
     const tripType = assignment.assignment_type as AssignmentType;
     const styles = TYPE_STYLES[tripType];
@@ -177,20 +183,37 @@ export const AssignmentRow: React.FC<AssignmentRowProps> = ({
             {/* Actions */}
             <div className="flex justify-end">
                 {canEdit && assignment.is_active && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => onEdit(assignment)}
+                            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+                            aria-label="Edit assignment"
+                            title="Edit assignment"
+                        >
+                            <Pencil size={16} />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onRemove(assignment)}
+                            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                            aria-label="Deactivate assignment"
+                            title="Deactivate assignment"
+                        >
+                            <Power size={16} />
+                        </button>
+                    </>
+                )}
+                {canEdit && !assignment.is_active && (
                     <button
                         type="button"
-                        onClick={() => onRemove(assignment)}
-                        className="
-                            rounded-lg
-                            p-2
-                            text-slate-400
-                            transition-colors
-                            hover:bg-red-50
-                            hover:text-red-600
-                        "
-                        aria-label="Remove assignment"
+                        onClick={() => onActivate(assignment)}
+                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600"
+                        aria-label="Activate assignment"
+                        title="Activate assignment"
                     >
-                        <Trash2 size={16} />
+                        <Power size={16} />
                     </button>
                 )}
             </div>
