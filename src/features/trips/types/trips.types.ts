@@ -46,7 +46,17 @@ export interface TripCreateRequest {
     bus_id      ?: number | null;
     driver_id   ?: number | null;
 }
- 
+
+export interface TripUpdateRequest {
+    school_id   : number;
+    branch_id   : number;
+    route_id    : number;
+    service_date: string;       // ISO date string "YYYY-MM-DD"
+    trip_type   : TripType;
+    bus_id      ?: number | null;
+    driver_id   ?: number | null;
+}
+
 /**
  * PATCH /trips/{trip_id}/assign
  * Assigns or reassigns bus / driver to a SCHEDULED trip.

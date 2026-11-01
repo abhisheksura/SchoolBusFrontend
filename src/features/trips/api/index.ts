@@ -3,7 +3,8 @@ export {
     getTrip,
     createTrip,
     assignTripAssets,
-    updateTripStatus
+    updateTripStatus,
+    updateTrip,
 } from "./trips.api"
 
 export {

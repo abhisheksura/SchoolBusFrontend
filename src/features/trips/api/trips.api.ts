@@ -20,6 +20,7 @@ import type {
     TripAssignAssetsRequest,
     TripUpdateStatusRequest,
     TripFilters,
+    TripUpdateRequest,
     // TripLiveStatusResponse,
 } from "../types";
  
@@ -75,6 +76,20 @@ export const createTrip = async (
     return data;
 };
  
+export const updateTrip = async(
+    tripId  : number,
+    schoolId: number,
+    branchId: number,
+    payload : TripUpdateStatusRequest,
+): Promise<TripResponse> => {
+    const { data } = await apiClient.patch<TripResponse>(
+        `/trips/${tripId}/update`,
+        payload,
+        { params: { school_id: schoolId, branch_id: branchId } },
+    );
+    return data;
+};
+
 /**
  * Assign or reassign bus / driver to a SCHEDULED trip.
  * At least one of bus_id or driver_id must be provided.
